@@ -1,0 +1,740 @@
+﻿
+
+
+
+
+
+
+ 
+ 
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>硕士专业目录_中国研究生招生信息网</title>
+<meta name="robots" content="all" />
+<meta name="keywords" content="硕士专业目录,考研专业目录查询,研究生 招生,研究生" />
+<meta name="description" content="中国研究生招生信息网提供权威的硕士专业目录查询服务，用户可查询到硕士招生各个专业的考试范围。" />
+
+
+<link rel="stylesheet" type="text/css" href='http://t1.chsi.com.cn/yz/css/base/base_960_24.css'/>
+<link rel="stylesheet" type="text/css" href='http://t3.chsi.com.cn/yz/css/base/ui.css'/>
+<link rel="stylesheet" type="text/css" href='http://t2.chsi.com.cn/yz/css/custom/zsml.css?20130916'/>
+<script type='text/javascript' src='http://t1.chsi.com.cn/common/jquery/1.8.3/jquery.min.js'></script>
+<script type='text/javascript' src='http://t3.chsi.com.cn/yz/js/custom/zsml.js?20130808'></script>
+<script language="javascript" src='http://t1.chsi.com.cn/common/axvert/js/showchsi_m.js'></script>
+
+
+</head>
+<script language='javascript'>
+function doSelect(item,val){
+	for (var i=0;i<item.options.length;i++){
+		if (item.options[i].value==val){
+			item.options[i].selected=true;
+			return;
+		}
+	}
+}	
+
+function initYjxk(){
+	$("#yjxkdm").empty();
+	var mldm = $("#mldm").val();
+	var xklbstr = "学科类别：";
+	var xklbostr = "--选择学科--";
+	if(mldm == "zyxw"){
+		xklbstr = "专业领域：";
+		xklbostr = "--选择领域--";
+	}
+	//$("#xklbstr").html(xklbstr);
+	$.ajax({
+		type: "POST",
+		async: false,
+		url: "/zsml/pages/getZy.jsp",
+		data: "mldm="+mldm,
+		dataType: "json",
+		error:function(XMLHttpRequest, textStatus){ 
+                        if(XMLHttpRequest.status==500){
+                          }
+                   },
+		success: function(json){
+			$("<option value=''>--"+xklbostr+"--</option>").appendTo("#yjxkdm")//添加下拉框的option
+			for(var i=0;i<json.length;i++){	
+				$("<option value='"+json[i].dm+"'>"+"("+json[i].dm+")"+json[i].mc+"</option>").appendTo("#yjxkdm")//添加下拉框的option
+			}
+		}
+	});
+}
+
+function initMl(){
+	$("#mldm").empty();
+	$.ajax({
+		type: "POST",
+		async: false,
+		url: "/zsml/pages/getMl.jsp",
+		//data: "dwdm="+dwdm,
+		dataType: "json",
+		error:function(XMLHttpRequest, textStatus){ 
+                        if(XMLHttpRequest.status==500){
+                          }
+                   },
+		success: function(json){
+			$("<option value=''>--选择门类--</option>").appendTo("#mldm")//添加下拉框的option
+			$("<optgroup label='专业学位'><option value='zyxw'>专业学位</option></optgroup").appendTo("#mldm")//添加下拉框的option
+			var $_optgroup = $("<optgroup label='学术学位'></optgroup>");
+			for(var i=0;i<json.length;i++){	
+				$("<option value='"+json[i].dm+"'>"+"("+json[i].dm+")"+json[i].mc+"</option>").appendTo($_optgroup)//添加下拉框的option
+			}
+			$_optgroup.appendTo("#mldm");
+		}
+	});
+}
+
+function initSs(){
+	$("#ssdm").empty();
+	$.ajax({
+		type: "POST",
+		async: false,
+		url: "/zsml/pages/getSs.jsp",
+		//data: "dwdm="+dwdm,
+		dataType: "json",
+		error:function(XMLHttpRequest, textStatus){ 
+                        if(XMLHttpRequest.status==500){
+                          }
+                   },
+		success: function(json){
+			$("<option value=''>--选择省市--</option>").appendTo("#ssdm")//添加下拉框的option
+			for(var i=0;i<json.length;i++){	
+				$("<option value='"+json[i].dm+"'>"+"("+json[i].dm+")"+json[i].mc+"</option>").appendTo("#ssdm")//添加下拉框的option
+			}
+		}
+	});
+
+}
+</script>
+<body>
+
+
+
+
+
+<style type="text/css">
+html,body{ margin:0; padding:0;}
+/*topNav layout*/
+#nav_top{ font:12px/1.5 '\5FAE\8F6F\96C5\9ED1','\5B8B\4F53', Arial, Helvetica, sans-serif; background: url(https://t1.chsi.com.cn/yz/images/base/nav_top_bg.png) repeat-x left top; text-align:left;  border-bottom:solid 1px #c7c7c7; }
+.topNav{ height:35px; line-height:35px; font-size:12px; background:#367bb9;  margin-bottom:10px; }
+.topNav950{ margin:0 auto; width:950px; text-align:left; clear:both;}
+.topNav_l{ float:left; width:800px; height:35px; overflow:hidden; line-height:35px;}
+.topNav_l a { float: left;    padding: 0 5px;	display:inline;  }
+.topNav_l a:link, .topNav_l a:visited { color:#333;  text-decoration: none;}
+.topNav_l a:hover {   text-decoration:underline;}
+.topNav_r { height:35px;line-height:35px;  float: right;  width: 150px; z-index: 999;}
+
+#nav_top p.bread_nav{ line-height:38px; height:38px;}
+.topNav input[type="text"], .topNav input[type="password"] {	resize: none;    border: 1px solid #CCCCCC;    border-radius: 3px 3px 3px 3px;    color: #555555;
+    display: inline-block;    font-size: 12px;    padding-left: 3px;    vertical-align: middle;}
+#nav_top input[type="text"]:hover,#nav_top input[type="password"]:hover {    border-color: rgba(82, 168, 236, 0.8);    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) inset, 0 0 8px rgba(82, 168, 236, 0.6);    outline: 0 none;}
+
+</style>
+
+<div class="topNav" id="nav_top">
+	<div class="topNav950">
+		<div class="topNav_l">
+			<a href="http://yz.chsi.com.cn/">首页</a><a href="http://yz.chsi.com.cn/kyzx/zcdh/" target="_self">政策</a><a href="http://yz.chsi.com.cn/kyinfo/" target="_self">资讯</a><a href="http://yz.chsi.com.cn/sch/"
+				target="_self">院校信息</a><a href="http://yz.chsi.com.cn/zyk/" target="_self">专业知识库</a><a href="http://yz.chsi.com.cn/zxdy/" target="_self">在线咨询</a><a href="http://yz.chsi.com.cn/sswbgg/"
+				target="_self">网报公告</a><a href="http://yz.chsi.com.cn/zsml/zyfx_search.jsp" target="_self">硕士目录</a><a href="http://yz.chsi.com.cn/yzwb/" target="_self">统考网报</a><a
+				href="http://yz.chsi.com.cn/user/?entrytype=yzgr" target="_self">准考证下载</a><a href="http://yz.chsi.com.cn/yztj/" target="_self">调剂</a><a href="http://yz.chsi.com.cn/tm/" target="_blank">推免服务系统</a><a href="http://yz.chsi.com.cn/bsmlcx/index.jsp" target="_self">博士目录</a><a href="http://yz.chsi.com.cn/bsbm/" target="_blank">博士网报</a>
+		</div>
+		<div class="topNav_r" id="navLogin">
+			<div class="nav">
+				
+					
+						
+
+
+<div id="yz_NavLoginBefore" style="display:block"> 
+      <div id="yz_NavLogin"><a class="loginIn" href="http://yz.chsi.com.cn/user/?entrytype=yzgr" id="yz_login_a" >登录</a>　<a href="https://account.chsi.com.cn/account/preregister.action?from=yz-home">注册</a> </div>
+</div>
+					
+					
+				
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="header" class="container_24 clearfix">
+  <div class="grid_24 clearfix"> <img src='http://t2.chsi.com.cn/yz/images/custom/zsml_banner.png' alt="研招网硕士专业目录查询" align="middle" /> </div>
+  <div class="grid_24 clearfix">
+    <div class="cur_position">当前位置：<a href="/" target="_self">首页</a> >  <a href="/zsml/zyfx_search.jsp" target="_self">硕士专业目录查询</a></div>
+  </div>
+</div>
+<div id="content" class="container_24 clearfix">
+  <div class="grid_24 clearfix">
+    <div class="cont">
+      <h2>2015年硕士专业目录查询</h2>
+      <div class="form-zsml" >
+        <form name="form2" method="post" id="form2" action = "/zsml/queryAction.do" >
+          <table align="center" id="top_form">
+            <tbody>
+              <tr>
+                <td ><SELECT name="ssdm" id="ssdm" style="width:150px;">
+			<option value="" selected>选择招生单位所在省市</OPTION>
+	  </SELECT></td>
+                <td><SELECT name="mldm" id="mldm" onchange="initYjxk();" style="width:150px;">
+			<option value="" selected>门类/类别</OPTION>
+	  </SELECT><input type="hidden" name="mlmc" id="mlmc" /></td>
+                <td ><span class="red">*</span><SELECT name="yjxkdm" id="yjxkdm" style="width:193px;">
+			<option value="" selected>学科/类别</OPTION>
+	  </SELECT></td>
+                <td><input type="text" id="dwmc" name=dwmc size=20  onblur="if(this.value==''){this.value='请输入招生单位名称';this.style.color='#AAA9A9';}" onfocus="if(this.value=='请输入招生单位名称'){this.value='';this.style.color='#555454'}"  style="width:145px;"  /></td>
+                <td><input type="text" id="zymc" name=zymc size=20  onblur="if(this.value==''){this.value='请输入专业名称';this.style.color='#AAA9A9';}" onfocus="if(this.value=='请输入专业名称'){this.value='';this.style.color='#555454'}"   style="width:135px;" /></td>
+                <td ><input type="button" class="buttonDeep" value="查询" onclick="doQuery1()"/></td>
+              </tr>
+            </tbody>
+          </table>
+          <p class="text_center red">（查询说明：招生单位名称和专业名称至少输入一项）</p>
+        </form>
+      </div>
+    </div>
+<script language="javascript"> 
+initSs();
+initMl();
+initYjxk();
+doSelect(document.getElementById("form2").ssdm,'11');
+doSelect(document.getElementById("form2").yjxkdm,'');
+doSelect(document.getElementById("form2").mldm,'');
+$("#dwmc").attr("value","");
+$("#zymc").attr("value","");
+
+ $(function(){
+			if( $.trim($("#dwmc").val())==''){ $("#dwmc").css("color",'#AAA9A9'); $("#dwmc").val('请输入招生单位名称');}
+			if( $.trim($("#zymc").val())==''){$("#zymc").val('请输入专业名称');$("#zymc").css("color",'#AAA9A9');}	
+			})
+</script>
+<div class="sch_result" id="sch_result">
+      <div class="chooseDiv">
+        <form name="form3" method="post" id="form3" action = "/zsml/queryAction.do" >
+        
+        <input type="hidden" name="ssdm" value="11"/>
+        <input type="hidden" name="dwmc" value=""/>
+        <input type="hidden" name="mldm" value=""/>
+        <input type="hidden" name="mlmc" value=""/>
+        <input type="hidden" name="yjxkdm" value=""/>
+        <input type="hidden" name="zymc" value=""/>
+        <input type="hidden" name="pageno" value="1"/>
+ 
+       
+       <table width="100%">
+        <tbody>
+        <tr>
+        <td width="110" class="text_right"> <strong>类别筛选：</strong></td>
+        <td>  
+        
+       
+            
+            <input type="checkbox" value="B985" id="xxlb" name="xxlb">
+           
+            
+            <label for="b985">985院校</label>
+             <a href="http://gaokao.chsi.com.cn/gkxx/gkcs/201112/20111231/384459706.html" target="_blank"><img src='http://t3.chsi.com.cn/gaokao/images/common/wenhao.png' width="13" height="13" /></a> &nbsp;
+            
+            
+            <input type="checkbox" value="B211" id="xxlb" name="xxlb">
+            
+            <label for="b211">211院校</label>
+             <a href="http://gaokao.chsi.com.cn/gkxx/gkcs/200410/20041001/384459440.html" target="_blank"><img src='http://t2.chsi.com.cn/gaokao/images/common/wenhao.png' width="13" height="13" /></a> &nbsp;
+             
+             
+            <input type="checkbox" value="YJSY" id="xxlb" name="xxlb">
+            
+            <label for="yjsy">研究生院</label>
+             <a href="/kyzx/kp/201101/20110119/161300374.html" target="_blank"><img src='http://t3.chsi.com.cn/gaokao/images/common/wenhao.png' width="13" height="13" /></a> &nbsp;
+           
+            
+            <input type="checkbox" value="ZHX" id="xxlb" name="xxlb">
+            
+            <label for="zhx">自划线院校</label>
+             <a href="/kyzx/other/201208/20120827/337867799.html" target="_blank"><img src='http://t1.chsi.com.cn/gaokao/images/common/wenhao.png' width="13" height="13" /></a> &nbsp;
+           
+            
+            <input type="checkbox" value="BS" id="xxlb" name="xxlb">
+            
+            <label for="bsd">博士点</label>
+            &nbsp;&nbsp;&nbsp;
+          
+     <input type="button" value="确定" style="height:auto" class="buttonDeep" onclick="sub2()"/>
+           </td>
+        </tr>
+        
+        </tbody>
+        </table>
+          <div class="clear">&nbsp;</div>
+        </form>
+      </div>
+      <style type="text/css">
+.sch_yxtx {
+    background-color: #52B2F3;
+    color: white;
+    padding: 1px 2px;
+}
+.sch_wu {
+    font-size: 16px;
+}
+.itemb {
+    margin-left: 41px;
+}
+</style>
+<div id="sch_list">
+        <table class="tablePro tableBordered">
+          <thead>
+            <tr>
+             <th>招生单位名称</th>
+             <th width="160">所在地</th>
+              <th>院校特性</th>
+              <th  width="100">研究生院</th>
+              <th  width="100">自划线院校</th>
+              <th width="100">博士点</th>
+            </tr>
+          </thead>
+          <tbody>
+          
+            <tr>        
+              <td class=""><a href="/zsml/zy_list.jsp"><a href="/zsml/querySchAction.do?ssdm=11&dwmc=%E5%8C%97%E4%BA%AC%E5%A4%A7%E5%AD%A6&mldm=&mlmc=&yjxkdm=&zymc=" target="_blank">(10001)北京大学</a></a></td>
+              <td class="">(11)北京市</td>
+              <td class="text_center"><span class='sch_yxtx'>985</span> &nbsp;&nbsp; <span class='sch_yxtx'>211</span> </td>
+              <td class="text_center">√</td>
+              <td class="text_center">√</td>
+              <td class="text_center">√</td>
+            </tr>
+          
+            <tr>        
+              <td class=""><a href="/zsml/zy_list.jsp"><a href="/zsml/querySchAction.do?ssdm=11&dwmc=%E4%B8%AD%E5%9B%BD%E4%BA%BA%E6%B0%91%E5%A4%A7%E5%AD%A6&mldm=&mlmc=&yjxkdm=&zymc=" target="_blank">(10002)中国人民大学</a></a></td>
+              <td class="">(11)北京市</td>
+              <td class="text_center"><span class='sch_yxtx'>985</span> &nbsp;&nbsp; <span class='sch_yxtx'>211</span> </td>
+              <td class="text_center">√</td>
+              <td class="text_center">√</td>
+              <td class="text_center">√</td>
+            </tr>
+          
+            <tr>        
+              <td class=""><a href="/zsml/zy_list.jsp"><a href="/zsml/querySchAction.do?ssdm=11&dwmc=%E6%B8%85%E5%8D%8E%E5%A4%A7%E5%AD%A6&mldm=&mlmc=&yjxkdm=&zymc=" target="_blank">(10003)清华大学</a></a></td>
+              <td class="">(11)北京市</td>
+              <td class="text_center"><span class='sch_yxtx'>985</span> &nbsp;&nbsp; <span class='sch_yxtx'>211</span> </td>
+              <td class="text_center">√</td>
+              <td class="text_center">√</td>
+              <td class="text_center">√</td>
+            </tr>
+          
+            <tr>        
+              <td class=""><a href="/zsml/zy_list.jsp"><a href="/zsml/querySchAction.do?ssdm=11&dwmc=%E5%8C%97%E4%BA%AC%E4%BA%A4%E9%80%9A%E5%A4%A7%E5%AD%A6&mldm=&mlmc=&yjxkdm=&zymc=" target="_blank">(10004)北京交通大学</a></a></td>
+              <td class="">(11)北京市</td>
+              <td class="text_center"><span class='itemb'></span><span class='sch_yxtx'>211</span></td>
+              <td class="text_center">√</td>
+              <td class="text_center">&nbsp;</td>
+              <td class="text_center">√</td>
+            </tr>
+          
+            <tr>        
+              <td class=""><a href="/zsml/zy_list.jsp"><a href="/zsml/querySchAction.do?ssdm=11&dwmc=%E5%8C%97%E4%BA%AC%E5%B7%A5%E4%B8%9A%E5%A4%A7%E5%AD%A6&mldm=&mlmc=&yjxkdm=&zymc=" target="_blank">(10005)北京工业大学</a></a></td>
+              <td class="">(11)北京市</td>
+              <td class="text_center"><span class='itemb'></span><span class='sch_yxtx'>211</span></td>
+              <td class="text_center">&nbsp;</td>
+              <td class="text_center">&nbsp;</td>
+              <td class="text_center">√</td>
+            </tr>
+          
+            <tr>        
+              <td class=""><a href="/zsml/zy_list.jsp"><a href="/zsml/querySchAction.do?ssdm=11&dwmc=%E5%8C%97%E4%BA%AC%E8%88%AA%E7%A9%BA%E8%88%AA%E5%A4%A9%E5%A4%A7%E5%AD%A6&mldm=&mlmc=&yjxkdm=&zymc=" target="_blank">(10006)北京航空航天大学</a></a></td>
+              <td class="">(11)北京市</td>
+              <td class="text_center"><span class='sch_yxtx'>985</span> &nbsp;&nbsp; <span class='sch_yxtx'>211</span> </td>
+              <td class="text_center">√</td>
+              <td class="text_center">√</td>
+              <td class="text_center">√</td>
+            </tr>
+          
+            <tr>        
+              <td class=""><a href="/zsml/zy_list.jsp"><a href="/zsml/querySchAction.do?ssdm=11&dwmc=%E5%8C%97%E4%BA%AC%E7%90%86%E5%B7%A5%E5%A4%A7%E5%AD%A6&mldm=&mlmc=&yjxkdm=&zymc=" target="_blank">(10007)北京理工大学</a></a></td>
+              <td class="">(11)北京市</td>
+              <td class="text_center"><span class='sch_yxtx'>985</span> &nbsp;&nbsp; <span class='sch_yxtx'>211</span> </td>
+              <td class="text_center">√</td>
+              <td class="text_center">√</td>
+              <td class="text_center">√</td>
+            </tr>
+          
+            <tr>        
+              <td class=""><a href="/zsml/zy_list.jsp"><a href="/zsml/querySchAction.do?ssdm=11&dwmc=%E5%8C%97%E4%BA%AC%E7%A7%91%E6%8A%80%E5%A4%A7%E5%AD%A6&mldm=&mlmc=&yjxkdm=&zymc=" target="_blank">(10008)北京科技大学</a></a></td>
+              <td class="">(11)北京市</td>
+              <td class="text_center"><span class='itemb'></span><span class='sch_yxtx'>211</span></td>
+              <td class="text_center">√</td>
+              <td class="text_center">&nbsp;</td>
+              <td class="text_center">√</td>
+            </tr>
+          
+            <tr>        
+              <td class=""><a href="/zsml/zy_list.jsp"><a href="/zsml/querySchAction.do?ssdm=11&dwmc=%E5%8C%97%E6%96%B9%E5%B7%A5%E4%B8%9A%E5%A4%A7%E5%AD%A6&mldm=&mlmc=&yjxkdm=&zymc=" target="_blank">(10009)北方工业大学</a></a></td>
+              <td class="">(11)北京市</td>
+              <td class="text_center">&nbsp;</td>
+              <td class="text_center">&nbsp;</td>
+              <td class="text_center">&nbsp;</td>
+              <td class="text_center">√</td>
+            </tr>
+          
+            <tr>        
+              <td class=""><a href="/zsml/zy_list.jsp"><a href="/zsml/querySchAction.do?ssdm=11&dwmc=%E5%8C%97%E4%BA%AC%E5%8C%96%E5%B7%A5%E5%A4%A7%E5%AD%A6&mldm=&mlmc=&yjxkdm=&zymc=" target="_blank">(10010)北京化工大学</a></a></td>
+              <td class="">(11)北京市</td>
+              <td class="text_center"><span class='itemb'></span><span class='sch_yxtx'>211</span></td>
+              <td class="text_center">&nbsp;</td>
+              <td class="text_center">&nbsp;</td>
+              <td class="text_center">√</td>
+            </tr>
+          
+            <tr>        
+              <td class=""><a href="/zsml/zy_list.jsp"><a href="/zsml/querySchAction.do?ssdm=11&dwmc=%E5%8C%97%E4%BA%AC%E5%B7%A5%E5%95%86%E5%A4%A7%E5%AD%A6&mldm=&mlmc=&yjxkdm=&zymc=" target="_blank">(10011)北京工商大学</a></a></td>
+              <td class="">(11)北京市</td>
+              <td class="text_center">&nbsp;</td>
+              <td class="text_center">&nbsp;</td>
+              <td class="text_center">&nbsp;</td>
+              <td class="text_center">√</td>
+            </tr>
+          
+            <tr>        
+              <td class=""><a href="/zsml/zy_list.jsp"><a href="/zsml/querySchAction.do?ssdm=11&dwmc=%E5%8C%97%E4%BA%AC%E6%9C%8D%E8%A3%85%E5%AD%A6%E9%99%A2&mldm=&mlmc=&yjxkdm=&zymc=" target="_blank">(10012)北京服装学院</a></a></td>
+              <td class="">(11)北京市</td>
+              <td class="text_center">&nbsp;</td>
+              <td class="text_center">&nbsp;</td>
+              <td class="text_center">&nbsp;</td>
+              <td class="text_center">√</td>
+            </tr>
+          
+            <tr>        
+              <td class=""><a href="/zsml/zy_list.jsp"><a href="/zsml/querySchAction.do?ssdm=11&dwmc=%E5%8C%97%E4%BA%AC%E9%82%AE%E7%94%B5%E5%A4%A7%E5%AD%A6&mldm=&mlmc=&yjxkdm=&zymc=" target="_blank">(10013)北京邮电大学</a></a></td>
+              <td class="">(11)北京市</td>
+              <td class="text_center"><span class='itemb'></span><span class='sch_yxtx'>211</span></td>
+              <td class="text_center">√</td>
+              <td class="text_center">&nbsp;</td>
+              <td class="text_center">√</td>
+            </tr>
+          
+            <tr>        
+              <td class=""><a href="/zsml/zy_list.jsp"><a href="/zsml/querySchAction.do?ssdm=11&dwmc=%E5%8C%97%E4%BA%AC%E5%8D%B0%E5%88%B7%E5%AD%A6%E9%99%A2&mldm=&mlmc=&yjxkdm=&zymc=" target="_blank">(10015)北京印刷学院</a></a></td>
+              <td class="">(11)北京市</td>
+              <td class="text_center">&nbsp;</td>
+              <td class="text_center">&nbsp;</td>
+              <td class="text_center">&nbsp;</td>
+              <td class="text_center">&nbsp;</td>
+            </tr>
+          
+            <tr>        
+              <td class=""><a href="/zsml/zy_list.jsp"><a href="/zsml/querySchAction.do?ssdm=11&dwmc=%E5%8C%97%E4%BA%AC%E5%BB%BA%E7%AD%91%E5%A4%A7%E5%AD%A6&mldm=&mlmc=&yjxkdm=&zymc=" target="_blank">(10016)北京建筑大学</a></a></td>
+              <td class="">(11)北京市</td>
+              <td class="text_center">&nbsp;</td>
+              <td class="text_center">&nbsp;</td>
+              <td class="text_center">&nbsp;</td>
+              <td class="text_center">√</td>
+            </tr>
+          
+            <tr>        
+              <td class=""><a href="/zsml/zy_list.jsp"><a href="/zsml/querySchAction.do?ssdm=11&dwmc=%E5%8C%97%E4%BA%AC%E7%9F%B3%E6%B2%B9%E5%8C%96%E5%B7%A5%E5%AD%A6%E9%99%A2&mldm=&mlmc=&yjxkdm=&zymc=" target="_blank">(10017)北京石油化工学院</a></a></td>
+              <td class="">(11)北京市</td>
+              <td class="text_center">&nbsp;</td>
+              <td class="text_center">&nbsp;</td>
+              <td class="text_center">&nbsp;</td>
+              <td class="text_center">&nbsp;</td>
+            </tr>
+          
+            <tr>        
+              <td class=""><a href="/zsml/zy_list.jsp"><a href="/zsml/querySchAction.do?ssdm=11&dwmc=%E5%8C%97%E4%BA%AC%E7%94%B5%E5%AD%90%E7%A7%91%E6%8A%80%E5%AD%A6%E9%99%A2&mldm=&mlmc=&yjxkdm=&zymc=" target="_blank">(10018)北京电子科技学院</a></a></td>
+              <td class="">(11)北京市</td>
+              <td class="text_center">&nbsp;</td>
+              <td class="text_center">&nbsp;</td>
+              <td class="text_center">&nbsp;</td>
+              <td class="text_center">&nbsp;</td>
+            </tr>
+          
+            <tr>        
+              <td class=""><a href="/zsml/zy_list.jsp"><a href="/zsml/querySchAction.do?ssdm=11&dwmc=%E4%B8%AD%E5%9B%BD%E5%86%9C%E4%B8%9A%E5%A4%A7%E5%AD%A6&mldm=&mlmc=&yjxkdm=&zymc=" target="_blank">(10019)中国农业大学</a></a></td>
+              <td class="">(11)北京市</td>
+              <td class="text_center"><span class='sch_yxtx'>985</span> &nbsp;&nbsp; <span class='sch_yxtx'>211</span> </td>
+              <td class="text_center">√</td>
+              <td class="text_center">√</td>
+              <td class="text_center">√</td>
+            </tr>
+          
+            <tr>        
+              <td class=""><a href="/zsml/zy_list.jsp"><a href="/zsml/querySchAction.do?ssdm=11&dwmc=%E5%8C%97%E4%BA%AC%E5%86%9C%E5%AD%A6%E9%99%A2&mldm=&mlmc=&yjxkdm=&zymc=" target="_blank">(10020)北京农学院</a></a></td>
+              <td class="">(11)北京市</td>
+              <td class="text_center">&nbsp;</td>
+              <td class="text_center">&nbsp;</td>
+              <td class="text_center">&nbsp;</td>
+              <td class="text_center">&nbsp;</td>
+            </tr>
+          
+            <tr>        
+              <td class=""><a href="/zsml/zy_list.jsp"><a href="/zsml/querySchAction.do?ssdm=11&dwmc=%E5%8C%97%E4%BA%AC%E6%9E%97%E4%B8%9A%E5%A4%A7%E5%AD%A6&mldm=&mlmc=&yjxkdm=&zymc=" target="_blank">(10022)北京林业大学</a></a></td>
+              <td class="">(11)北京市</td>
+              <td class="text_center"><span class='itemb'></span><span class='sch_yxtx'>211</span></td>
+              <td class="text_center">√</td>
+              <td class="text_center">&nbsp;</td>
+              <td class="text_center">√</td>
+            </tr>
+          
+            <tr>        
+              <td class=""><a href="/zsml/zy_list.jsp"><a href="/zsml/querySchAction.do?ssdm=11&dwmc=%E5%8C%97%E4%BA%AC%E5%8D%8F%E5%92%8C%E5%8C%BB%E5%AD%A6%E9%99%A2&mldm=&mlmc=&yjxkdm=&zymc=" target="_blank">(10023)北京协和医学院</a></a></td>
+              <td class="">(11)北京市</td>
+              <td class="text_center">&nbsp;</td>
+              <td class="text_center">√</td>
+              <td class="text_center">&nbsp;</td>
+              <td class="text_center">√</td>
+            </tr>
+          
+            <tr>        
+              <td class=""><a href="/zsml/zy_list.jsp"><a href="/zsml/querySchAction.do?ssdm=11&dwmc=%E9%A6%96%E9%83%BD%E5%8C%BB%E7%A7%91%E5%A4%A7%E5%AD%A6&mldm=&mlmc=&yjxkdm=&zymc=" target="_blank">(10025)首都医科大学</a></a></td>
+              <td class="">(11)北京市</td>
+              <td class="text_center">&nbsp;</td>
+              <td class="text_center">&nbsp;</td>
+              <td class="text_center">&nbsp;</td>
+              <td class="text_center">√</td>
+            </tr>
+          
+            <tr>        
+              <td class=""><a href="/zsml/zy_list.jsp"><a href="/zsml/querySchAction.do?ssdm=11&dwmc=%E5%8C%97%E4%BA%AC%E4%B8%AD%E5%8C%BB%E8%8D%AF%E5%A4%A7%E5%AD%A6&mldm=&mlmc=&yjxkdm=&zymc=" target="_blank">(10026)北京中医药大学</a></a></td>
+              <td class="">(11)北京市</td>
+              <td class="text_center"><span class='itemb'></span><span class='sch_yxtx'>211</span></td>
+              <td class="text_center">&nbsp;</td>
+              <td class="text_center">&nbsp;</td>
+              <td class="text_center">√</td>
+            </tr>
+          
+            <tr>        
+              <td class=""><a href="/zsml/zy_list.jsp"><a href="/zsml/querySchAction.do?ssdm=11&dwmc=%E5%8C%97%E4%BA%AC%E5%B8%88%E8%8C%83%E5%A4%A7%E5%AD%A6&mldm=&mlmc=&yjxkdm=&zymc=" target="_blank">(10027)北京师范大学</a></a></td>
+              <td class="">(11)北京市</td>
+              <td class="text_center"><span class='sch_yxtx'>985</span> &nbsp;&nbsp; <span class='sch_yxtx'>211</span> </td>
+              <td class="text_center">√</td>
+              <td class="text_center">√</td>
+              <td class="text_center">√</td>
+            </tr>
+          
+            <tr>        
+              <td class=""><a href="/zsml/zy_list.jsp"><a href="/zsml/querySchAction.do?ssdm=11&dwmc=%E9%A6%96%E9%83%BD%E5%B8%88%E8%8C%83%E5%A4%A7%E5%AD%A6&mldm=&mlmc=&yjxkdm=&zymc=" target="_blank">(10028)首都师范大学</a></a></td>
+              <td class="">(11)北京市</td>
+              <td class="text_center">&nbsp;</td>
+              <td class="text_center">&nbsp;</td>
+              <td class="text_center">&nbsp;</td>
+              <td class="text_center">√</td>
+            </tr>
+          
+            <tr>        
+              <td class=""><a href="/zsml/zy_list.jsp"><a href="/zsml/querySchAction.do?ssdm=11&dwmc=%E9%A6%96%E9%83%BD%E4%BD%93%E8%82%B2%E5%AD%A6%E9%99%A2&mldm=&mlmc=&yjxkdm=&zymc=" target="_blank">(10029)首都体育学院</a></a></td>
+              <td class="">(11)北京市</td>
+              <td class="text_center">&nbsp;</td>
+              <td class="text_center">&nbsp;</td>
+              <td class="text_center">&nbsp;</td>
+              <td class="text_center">√</td>
+            </tr>
+          
+            <tr>        
+              <td class=""><a href="/zsml/zy_list.jsp"><a href="/zsml/querySchAction.do?ssdm=11&dwmc=%E5%8C%97%E4%BA%AC%E5%A4%96%E5%9B%BD%E8%AF%AD%E5%A4%A7%E5%AD%A6&mldm=&mlmc=&yjxkdm=&zymc=" target="_blank">(10030)北京外国语大学</a></a></td>
+              <td class="">(11)北京市</td>
+              <td class="text_center"><span class='itemb'></span><span class='sch_yxtx'>211</span></td>
+              <td class="text_center">&nbsp;</td>
+              <td class="text_center">&nbsp;</td>
+              <td class="text_center">√</td>
+            </tr>
+          
+            <tr>        
+              <td class=""><a href="/zsml/zy_list.jsp"><a href="/zsml/querySchAction.do?ssdm=11&dwmc=%E5%8C%97%E4%BA%AC%E7%AC%AC%E4%BA%8C%E5%A4%96%E5%9B%BD%E8%AF%AD%E5%AD%A6%E9%99%A2&mldm=&mlmc=&yjxkdm=&zymc=" target="_blank">(10031)北京第二外国语学院</a></a></td>
+              <td class="">(11)北京市</td>
+              <td class="text_center">&nbsp;</td>
+              <td class="text_center">&nbsp;</td>
+              <td class="text_center">&nbsp;</td>
+              <td class="text_center">&nbsp;</td>
+            </tr>
+          
+            <tr>        
+              <td class=""><a href="/zsml/zy_list.jsp"><a href="/zsml/querySchAction.do?ssdm=11&dwmc=%E5%8C%97%E4%BA%AC%E8%AF%AD%E8%A8%80%E5%A4%A7%E5%AD%A6&mldm=&mlmc=&yjxkdm=&zymc=" target="_blank">(10032)北京语言大学</a></a></td>
+              <td class="">(11)北京市</td>
+              <td class="text_center">&nbsp;</td>
+              <td class="text_center">&nbsp;</td>
+              <td class="text_center">&nbsp;</td>
+              <td class="text_center">√</td>
+            </tr>
+          
+            <tr>        
+              <td class=""><a href="/zsml/zy_list.jsp"><a href="/zsml/querySchAction.do?ssdm=11&dwmc=%E4%B8%AD%E5%9B%BD%E4%BC%A0%E5%AA%92%E5%A4%A7%E5%AD%A6&mldm=&mlmc=&yjxkdm=&zymc=" target="_blank">(10033)中国传媒大学</a></a></td>
+              <td class="">(11)北京市</td>
+              <td class="text_center"><span class='itemb'></span><span class='sch_yxtx'>211</span></td>
+              <td class="text_center">&nbsp;</td>
+              <td class="text_center">&nbsp;</td>
+              <td class="text_center">√</td>
+            </tr>
+           
+          </tbody>
+        </table>
+        
+        
+      </div>
+    </div>
+<div class="clearfix">
+<p>注：本系统数据由各招生单位上报，如有疑问请咨询相关招生单位。</p>
+    <ul class="ulPage">
+    <li class="lip" id="page_total">1/6</li>
+    <li class="lip"><a href="#" onclick="nextPage(1)">首页</a></li>
+    
+	    	<li class="lip unable">&lt;&lt;</li>
+	    	
+    
+				<li class="lip selected">1</li>
+				
+				<li class="lip"><a href="#" onclick="nextPage(2)">2</a></li>
+				
+				<li class="lip"><a href="#" onclick="nextPage(3)">3</a></li>
+				
+				<li class="lip"><a href="#" onclick="nextPage(4)">4</a></li>
+				
+				<li class="lip"><a href="#" onclick="nextPage(5)">5</a></li>
+				
+				<li class="lip"><a href="#" onclick="nextPage(6)">6</a></li>
+				 
+    
+    	<li class="lip"><a href="#" onclick="nextPage(2)">&gt;&gt;</a></li>
+    	
+     <li class="lip"><a href="#" onclick="nextPage(6)">末页</a></li>
+      <li>
+        <input type="text" name="goPageNo" id="goPageNo" class="page_input" rel="6" value="" style="height:24px; line-height:24px;">
+      </li>
+      <li class="lip"><a href="#" onclick="goPageNo()">GO</a></li>
+    </ul>
+
+     
+  </div>
+  </div>
+</div>
+
+
+
+
+
+<style type="text/css">#footer{ width:950px; margin:10px auto; padding:10px 0; overflow:hidden; text-align:center; border-top: 1px solid #BFE0F0; line-height:24px; clear:both; font-size:12px;}#footer a:link,#footer a:visited {color: #333333;    text-decoration: none;}#footer a:hover {    color: #990000;
+    text-decoration: underline;}</style>
+  <div class="footer" id="footer"> <a href="http://www.chsi.com.cn/" target="_blank">[ CHSI首页 ]</a> -- <a href="http://www.chsi.com.cn/about/about_center.shtml" target="_blank">[ 中心简介 ]</a> -- <a href="http://www.chsi.com.cn/about/contact.shtml" target="_blank">[ 联系我们 ]</a> -- <a href="/doc/copyright.jsp" target="_blank">[ 版权声明 ]</a> -- <a href="/sitemap.jsp" target="_blank">[ 网站地图 ]</a> -- <a href="/doc/adv.jsp" target="_blank">[ 宣传代理 ]</a> -- <a href="mailto:yzyz@chsi.com.cn" target="_blank">[ 我要投稿 ]</a> <br />
+    主管单位：教育部高校学生司　　主办单位：<a href="http://www.chsi.com.cn/" target="_blank">全国高等学校学生信息咨询与就业指导中心</a>　　<a href="http://www.miibeian.gov.cn/" style="color:#C00;" target="_blank">京ICP证030485号</a><br />
+    承办单位：中国高等教育学生信息网　　　服务热线：010-82199588　　　客服邮箱：kefu#chsi.com.cn（将#替换为@）</div>
+
+
+</body>
+</html>
+
+<script language="javascript"> 
+	function sub2(){
+		var form3 = document.getElementById("form3"); 
+		form3.submit(); 
+	}
+	
+	var form2 = document.getElementById("form2");       
+        function doQuery(){ 
+        
+            form2.actionType.value="doQuery"; 
+  
+  if (form2.dwmc.value == "请输入招生单位名称") {
+		form2.dwmc.value = "";
+	}
+	if (form2.zymc.value == "请输入专业名称") {
+		form2.zymc.value = "";
+	}			
+            form2.submit(); 
+		}
+		
+	function doQuery1(){
+ var form2 = document.getElementById("form2");
+
+			
+if (form2.dwmc.value == "请输入招生单位名称") {
+	form2.dwmc.value = "";
+	
+}
+if (form2.zymc.value == "请输入专业名称") {
+	form2.zymc.value = "";
+}
+
+if ((form2.zymc.value.indexOf("%") != -1) || (form2.zymc.value.indexOf("％") != -1)) {
+	window.alert("不允许输入'%'");
+	form2.dwmc.value = "请输入招生单位名称";
+  form2.zymc.value = "请输入专业名称";
+return false;
+}
+if ((form2.zymc.value.indexOf("★") == -1) || (form2.zymc.value.indexOf("*") == -1)) {
+var a = form2.zymc.value;
+var l = OK(a);
+if(escape(a).indexOf("%u")!=-1){ 
+	if(!l){
+window.alert("输入的专业名称至少为连续两个汉字");
+form2.dwmc.value = "请输入招生单位名称";
+form2.zymc.value = "请输入专业名称";
+return false;
+	}
+}
+}
+
+if ((form2.dwmc.value.indexOf("%") != -1) || (form2.dwmc.value.indexOf("％") != -1)) {
+	window.alert("不允许输入'%'");
+	form2.dwmc.value = "请输入招生单位名称";
+  form2.zymc.value = "请输入专业名称";
+return false;
+}
+if ((form2.dwmc.value.indexOf("★") == -1) || (form2.dwmc.value.indexOf("*") == -1)) {
+var a = form2.dwmc.value;
+var l = OK(a);
+if(escape(a).indexOf("%u")!=-1){ 
+	if(!l){
+window.alert("输入的单位名称至少为连续两个汉字");
+form2.dwmc.value = "请输入招生单位名称";
+form2.zymc.value = "请输入专业名称";
+return false;
+	}
+}
+}
+
+if ((form2.zymc.value == "") && (form2.dwmc.value == "") && (form2.yjxkdm.value == "") && (form2.ssdm.value == "") && (form2.mldm.value == "") ){
+window.alert("至少填写或选择一项");
+form2.dwmc.value = "请输入招生单位名称";
+form2.zymc.value = "请输入专业名称";
+}else{
+  	var selectedIndexOfMldm=document.getElementById("mldm").selectedIndex;
+  	var mlmc=document.getElementById("mldm").options[selectedIndexOfMldm].text;
+  	mlmc=mlmc.substring(mlmc.indexOf(")")+1,mlmc.length);
+  	form2.mlmc.value = mlmc;
+    form2.submit(); 
+}
+ } 
+ 
+ 
+function OK(fData)
+{
+    var ok = false;
+    for (var i=0;i<fData.length;i++)
+    {
+        if ((fData.charCodeAt(i) < 0) || (fData.charCodeAt(i) > 255)){
+        	if(i + 1 < fData.length){
+        		if ((fData.charCodeAt(i + 1) < 0) || (fData.charCodeAt(i + 1) > 255)){
+        			ok = true;
+        		}
+        	}
+        
+        }
+    }
+    return ok;
+}
+
+function nextPage(pageno){ 
+	var form3 = document.getElementById("form3"); 
+	form3.pageno.value=pageno;
+	form3.submit(); 
+}
+
+function goPageNo(){ 
+	var pageno = document.getElementById("goPageNo").value; 
+	if(parseInt(pageno) > parseInt($("#goPageNo").attr("rel"))){ alert("此页不存在"); return false;}
+	else{nextPage(pageno)};
+}
+</script>

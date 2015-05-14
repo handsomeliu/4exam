@@ -1,8 +1,17 @@
 <?php
-	//echo "Test";
-date_default_timezone_set('PRC');
 
-include "./simple_html_dom.php";
+//
+/*
+	从考研官网 抓取 当年录取学校列表
+	
+	
+	by liulube@126.com
+
+*/
+
+
+date_default_timezone_set('PRC');
+include dirname(__File__) . "/../pub/simple_html_dom.php";
 
 class schoolspider {
 	
@@ -57,6 +66,9 @@ class schoolspider {
 			//获取根页面上的子页面ID				
 			$n_page = $this->get_schools_page_info($s_url);
 			//$n_page = 1;
+			while (false === $n_page){
+				$n_page = $this->get_schools_page_info($s_url);
+			}
 			
 			
 			//循环抓取指定ID的数据，将数据录入掉数据库
@@ -65,7 +77,11 @@ class schoolspider {
 			for($i = 1; $i <= $n_page; $i++){
 				$s_url_crawl = $s_url_child . "$this->s_filter_page_name=$i";
 				echo date("Y-m-d H-i-s") . ":spider start crawl:" . $s_url_child . "$this->s_filter_page_name=$i" . "\n";
-				$this->get_schoolslist_by_url($s_url_crawl);
+				$flag = $this->get_schoolslist_by_url($s_url_crawl);
+				while(false === $flag){
+					echo date("Y-m-d H-i-s") . ":spider failed crawl:" . $s_url_child . "$this->s_filter_page_name=$i" . "\n";
+					$flag = $this->get_schoolslist_by_url($s_url_crawl);
+				}
 			}
 			//$this->get_schoolslist_by_url($s_url);
 			
@@ -116,16 +132,23 @@ class schoolspider {
 		// simple_html_dom					
 		//$html = new simple_html_dom();
 		$ch2 = curl_init();
+		echo "Crawl Root : $url \n";
 		curl_setopt($ch2, CURLOPT_URL, $url);
 		curl_setopt($ch2, CURLOPT_RETURNTRANSFER, true);	
 		curl_setopt($ch2, CURLOPT_HEADER, 0);
 		curl_setopt($ch2, CURLOPT_TIMEOUT, 10);
 		
 		$html_content = curl_exec($ch2);
-		// 失败重试一次
-		if (curl_getinfo($ch2, CURLINFO_HTTP_CODE) !== 200) {
-			$html = curl_exec($ch2);
+		//// 失败重试
+		//$n_try = 1;
+		if (curl_getinfo($ch2, CURLINFO_HTTP_CODE) !== 200 || "" == trim($html_content)) {
+		//	$ret = curl_exec($ch2);
+		//	$n_try++;
+		//	echo "Crawl Root again $n_try \n";
+		//	if($n_try > 5){
+			return false;
 		}
+		//}
 		$html = new simple_html_dom();
 		$html->load("$html_content");
 		
@@ -161,32 +184,39 @@ class schoolspider {
 		
 		//$url = $this->root_url;		
 		//$url = "http://yz.chsi.com.cn/zsml/queryAction.do?ssdm=11&dwmc=&mldm=&mlmc=&yjxkdm=&zymc=&pageno=1";
-		echo date("H-i-s") . "\t";			
+		//echo date("H-i-s") . "\t";			
 		$ch2 = curl_init();
 		curl_setopt($ch2, CURLOPT_URL, $url);
 		curl_setopt($ch2, CURLOPT_RETURNTRANSFER, true);	
 		curl_setopt($ch2, CURLOPT_HEADER, 0);
-		curl_setopt($ch2, CURLOPT_TIMEOUT, 10);
+		curl_setopt($ch2, CURLOPT_TIMEOUT, 20);
 		
 		$html = curl_exec($ch2);
-		// 失败重试一次
-		if (curl_getinfo($ch2, CURLINFO_HTTP_CODE) !== 200) {
-			$ret = curl_exec($ch2);
+		//// 失败重试
+		//$n_try = 1;
+		if (curl_getinfo($ch2, CURLINFO_HTTP_CODE) !== 200 || "" == trim($html)) {
+		//	$ret = curl_exec($ch2);
+		//	$n_try++;
+		//	echo "Crawl url again $n_try \n";
+		//	if($n_try > 3){
+			return false;
+		//	}
 		}
 		//print_r($html);
 		curl_close($ch2);
-		echo date("H-i-s") . "\t";		
+		//echo date("H-i-s") . "\t";		
 		$cl_html = new simple_html_dom();
 		$cl_html->load($html);
 		
 		$a_schools = $cl_html->find('div[id=sch_list] tr');
 		//echo count($a_schools);
-		echo date("H-i-s") . "\t";
+		//echo date("H-i-s") . "\n";
 		foreach($a_schools  as $e_school){
 			//echo $e_school->innertext  . "\n";
 			$this->parse_school_info($e_school->outertext);			
 		}
-		echo date("H-i-s") . "\n";
+		//echo date("H-i-s") . "\t";
+		return true;
 	}
 	
 	//根据截取的 schools html 分析提取学校信息返回指定结构
@@ -211,7 +241,8 @@ class schoolspider {
 		);
 		//echo $a_school_info['name'] . "\n";
 		//var_dump($a_school_info);
-		
+		$s_school_info = implode("\t", $a_school_info);
+		echo "School_info:\t" . $s_school_info . "\n";
 	}
 	
 	private function get_list_ss(){
