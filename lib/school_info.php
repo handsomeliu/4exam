@@ -254,10 +254,157 @@ class schoolspider {
 		//var_dump($a_ss);
 		return $a_ss;
 	}
+		
+	
+}
+
+class subjectsipder {
+	private $s_school_info_file_name =  "./../dat/school_info.list";
+	private $cl_school;
+	
+	public function spider_exec(){
+		$file_name = $this->s_school_info_file_name;
+		//echo "$file_name";
+		
+		if(!file_exists($file_name)){
+			echo "file not exists:$file_name";
+			return false;
+		} 
+		
+		
+		
+		$fp = fopen($file_name, "r+");
+		
+		while(!feof($fp)){
+			$a_school = fgetcsv($fp, 999, "\t");
+			if(count($a_school)){
+				//echo $a_school[1] . "\n";
+				$school_name = $a_school[1];
+				$school_id = $a_school[2];
+				$school_arae = $a_school[4];
+				$school_arae_id = $a_school[5];
+				$school_url = $a_school[3];
+				$cl_school = new school();
+				$cl_school->set_name($school_name);
+				$cl_school->set_name_id($school_id);
+				$cl_school->set_url($school_url);
+				$cl_school->set_area($school_arae);
+				$cl_school->set_area_id($school_arae_id);
+				$cl_school->set_level($a_school[6]);
+				$cl_school->set_dlyx($a_school[7]);
+			    $cl_school->set_zzhx($a_school[8]);
+				$cl_school->set_bsd($a_school[9]);
+				
+				$this->cl_school = $cl_school;
+			}
+			//var_dump($a_school);			
+			
+			//$this->get_subjects_by_url($school_url);
+		}
+		$this->get_subjects_by_url($school_url);
+		//var_dump($a_school);
+		
+		fclose($fp);
+		
+	}
+	
+	//根据抓取的 学校专业列表 url 循环抓取专业相关的信息
+	public function get_subjects_by_url($url){
+		
+		//查询列表页数
+		$n_page = $this->get_subjects_page_info($url);
+			//失败重试
+			while(false === $n_page){			
+				$n_page = $this->get_subjects_page_info($url);
+			}
+			//var_dump($n_page);
+		//循环抓取专业列表
+		for($i = 1; $i <= $n_page; $i++){
+			$flag = $this->get_subjects_by_pageno($url, $i);
+			//失败重试
+			while(false === $n_page){			
+				$flag = $this->get_subjects_by_pageno($url, $i);
+			}
+		}
+		return true;
+	}
 	
 	
+	//根据学校专业的列表url 构造带页面的页面 抓取页面内容
+	private function get_subjects_by_pageno($url, $n_page){
+		
+		$url = $url . "&pageno=$n_page";
+		//echo $url;
+		
+		$ch2 = curl_init();
+		curl_setopt($ch2, CURLOPT_URL, $url);
+		curl_setopt($ch2, CURLOPT_RETURNTRANSFER, true);	
+		curl_setopt($ch2, CURLOPT_HEADER, 0);
+		curl_setopt($ch2, CURLOPT_TIMEOUT, 20);
+		
+		$html = curl_exec($ch2);
+
+		if (curl_getinfo($ch2, CURLINFO_HTTP_CODE) !== 200 || "" == trim($html)) {
+			return false;
+		}
+		curl_close($ch2);
+		$cl_html = new simple_html_dom();
+		$cl_html->load($html);
+		$a_subjects = $cl_html->find('div[id=sch_list] tr');
+		foreach($a_subjects  as $e_subject){
+			$this->parse_subject_info($e_subject->outertext);			
+			//echo $this->cl_school->get_name() . "\n";
+			//echo $e_subject->outertext . "\n";
+		}
+		return true;			
+	}
+	
+	//分析专业描述的列表 
+	//输入每行的数据
+	//输出专业 描述 结构体
+	private function parse_subject_info($html){
+		$cl_subject = new subject();
+		
+		$cl_subject->set_cl_school($this->cl_school);
+		//var_dump($cl_subject);
+		
+		$cl_subject->parse_html($html);
+		
+		
+		return true;
+	}
 	
 	
+	//分析学校的跟页面中 专业列表有多少列
+	private function get_subjects_page_info($url){
+		$ch2 = curl_init();
+		//echo "Crawl Root : $url \n";
+		curl_setopt($ch2, CURLOPT_URL, $url);
+		curl_setopt($ch2, CURLOPT_RETURNTRANSFER, true);	
+		curl_setopt($ch2, CURLOPT_HEADER, 0);
+		curl_setopt($ch2, CURLOPT_TIMEOUT, 10);
+		
+		$html_content = curl_exec($ch2);
+
+		if (curl_getinfo($ch2, CURLINFO_HTTP_CODE) !== 200 || "" == trim($html_content)) {
+
+			return false;
+		}
+		$html = new simple_html_dom();
+		$html->load("$html_content");
+		$e_page_info = $html->find('li[id=page_total]');
+		if(0 == count($e_page_info)){
+			return false;
+		}
+		$s_page_info = $e_page_info[0]->plaintext;
+		$a_tmp = explode("/" , $s_page_info);
+		if(2 == count($a_tmp)){
+			$n_page = $a_tmp[1];
+			return $n_page;
+		} else {
+			return false;
+		}		
+	}
 }
 
 
@@ -277,15 +424,27 @@ class school {
 	private $bsd;//博士点
 	
 	
-	public function get_name(){return $this->name;}
-	public function get_name_id(){return $this->name_id;}
-	public function get_url(){return $this->url;}
-	public function get_area(){return $this->area;}
-	public function get_area_id(){return $this->area_id;}
-	public function get_level(){return $this->level;}
-	public function get_dlyx(){return $this->dlyx;}
-	public function get_zzhx(){return $this->zzhx;}
-	public function get_bsd(){return $this->bsd;}
+	public function get_name	(){return $this->name;}
+	public function get_name_id	(){return $this->name_id;}
+	public function get_url		(){return $this->url;}
+	public function get_area	(){return $this->area;}
+	public function get_area_id	(){return $this->area_id;}
+	public function get_level	(){return $this->level;}
+	public function get_dlyx	(){return $this->dlyx;}
+	public function get_zzhx	(){return $this->zzhx;}
+	public function get_bsd		(){return $this->bsd;}
+	
+	
+	public function set_name	($value){$this->name	= $value;return true;}
+	public function set_name_id	($value){$this->name_id	= $value;return true;}
+	public function set_url		($value){$this->url		= $value;return true;}
+	public function set_area	($value){$this->area	= $value;return true;}
+	public function set_area_id	($value){$this->area_id	= $value;return true;}
+	public function set_level	($value){$this->level	= $value;return true;}
+	public function set_dlyx	($value){$this->dlyx	= $value;return true;}
+	public function set_zzhx	($value){$this->zzhx	= $value;return true;}
+	public function set_bsd		($value){$this->bsd		= $value;return true;}
+	
 	
 	private function set_html($html){ $this->html = $html;}
 	 
@@ -348,9 +507,62 @@ class school {
 	
 }
 
+class subject {
+	
+	private $html;
+	
+	private $cl_school;
+	private $department_name;
+	private $department_id;
+	private $subject_name;
+	private $subject_id;
+	private $research_name;
+	private $research_id;
+	private $tearcher;
+	private $number;
+	private $examption_number;
+	private $exam_subjects;
+	private $cross_subject;
+	private $remark;
+	
+	public function get_cl_school		(){return $this->cl_school;}
+	public function get_department_name	(){return $this->department_name;}	
+	public function get_department_id	(){return $this->department_id;}
+	public function get_subject_name		(){return $this->subject_name;}
+	public function get_subject_id		(){return $this->subject_id;}
+	public function get_research_name	(){return $this->research_name;}
+	public function get_research_id		(){return $this->research_id;}
+	public function get_tearcher			(){return $this->tearcher;}
+	public function get_number			(){return $this->number;}
+	public function get_examption_number	(){return $this->examption_number;}
+	public function get_exam_subjects	(){return $this->exam_subjects;}
+	public function get_cross_subject	(){return $this->cross_subject;}
+	public function get_remark			(){return $this->remark;}
 
-$cl_schoolslist = new schoolspider();
-$cl_schoolslist->spider_exec();
+	
+	public function set_cl_school($value){$this->cl_school = $value; return true;}
+	
+	public function parse_html($html){
+		$this->html = $html;
+		//echo $html;
+		$subject_html = $this->html;
+		
+		$cl_html = new simple_html_dom();
+		$cl_html->load($subject_html);
+		
+		$a_school_html = $cl_html->find('td');
+		$a_school_url = $cl_html->find('td a a');
+		if(count($a_school_html)){
+			echo $this->cl_school->get_name() . "\t" . $a_school_html[0]->innertext . "\n";
+		}
+		
+	}
+	
+}
+
+
+//$cl_schoolslist = new schoolspider();
+//$cl_schoolslist->spider_exec();
 //$cl_schoolslist->spider_exec();
 
 

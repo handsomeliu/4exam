@@ -1,0 +1,589 @@
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>硕士专业目录_中国研究生招生信息网</title>
+<meta name="robots" content="all" />
+<meta name="keywords" content="硕士专业目录,考研专业目录查询,研究生 招生,研究生" />
+<meta name="description" content="中国研究生招生信息网提供权威的硕士专业目录查询服务，用户可查询到硕士招生各个专业的考试范围。" />
+
+
+<link rel="stylesheet" type="text/css" href='http://t1.chsi.com.cn/yz/css/base/base_960_24.css'/>
+<link rel="stylesheet" type="text/css" href='http://t1.chsi.com.cn/yz/css/base/ui.css'/>
+<link rel="stylesheet" type="text/css" href='http://t4.chsi.com.cn/yz/css/custom/zsml.css?20130916'/>
+<script type='text/javascript' src='http://t1.chsi.com.cn/common/jquery/1.8.3/jquery.min.js'></script>
+<script type='text/javascript' src='http://t1.chsi.com.cn/yz/js/custom/zsml.js?20130808'></script>
+<script language="javascript" src='http://t1.chsi.com.cn/common/axvert/js/showchsi_m.js'></script>
+
+
+</head>
+<script language='javascript'>
+function doSelect(item,val){
+	for (var i=0;i<item.options.length;i++){
+		if (item.options[i].value==val){
+			item.options[i].selected=true;
+			return;
+		}
+	}
+}
+function initYjxk(){
+	$("#yjxkdm").empty();
+	var mldm = $("#mldm").val();
+	var xklbstr = "学科类别：";
+	var xklbostr = "--选择学科--";
+	if(mldm == "zyxw"){
+		xklbstr = "专业领域：";
+		xklbostr = "--选择领域--";
+	}
+	//$("#xklbstr").html(xklbstr);
+	$.ajax({
+		type: "POST",
+		async: false,
+		url: "/zsml/pages/getZy.jsp",
+		data: "mldm="+mldm,
+		dataType: "json",
+		error:function(XMLHttpRequest, textStatus){ 
+                        if(XMLHttpRequest.status==500){
+                          }
+                   },
+		success: function(json){
+			$("<option value=''>--"+xklbostr+"--</option>").appendTo("#yjxkdm")//添加下拉框的option
+			for(var i=0;i<json.length;i++){	
+				$("<option value='"+json[i].dm+"'>"+"("+json[i].dm+")"+json[i].mc+"</option>").appendTo("#yjxkdm")//添加下拉框的option
+			}
+		}
+	});
+}
+
+function initMl(){
+	$("#mldm").empty();
+	$.ajax({
+		type: "POST",
+		async: false,
+		url: "/zsml/pages/getMl.jsp",
+		//data: "dwdm="+dwdm,
+		dataType: "json",
+		error:function(XMLHttpRequest, textStatus){ 
+                        if(XMLHttpRequest.status==500){
+                          }
+                   },
+		success: function(json){
+			$("<option value=''>--选择门类--</option>").appendTo("#mldm")//添加下拉框的option
+			$("<optgroup label='专业学位'><option value='zyxw'>专业学位</option></optgroup").appendTo("#mldm")//添加下拉框的option
+			var $_optgroup = $("<optgroup label='学术学位'></optgroup>");
+			for(var i=0;i<json.length;i++){	
+				$("<option value='"+json[i].dm+"'>"+"("+json[i].dm+")"+json[i].mc+"</option>").appendTo($_optgroup)//添加下拉框的option
+			}
+			$_optgroup.appendTo("#mldm");
+		}
+	});
+}
+
+function initSs(){
+	$("#ssdm").empty();
+	$.ajax({
+		type: "POST",
+		async: false,
+		url: "/zsml/pages/getSs.jsp",
+		//data: "dwdm="+dwdm,
+		dataType: "json",
+		error:function(XMLHttpRequest, textStatus){ 
+                        if(XMLHttpRequest.status==500){
+                          }
+                   },
+		success: function(json){
+			$("<option value=''>--选择省市--</option>").appendTo("#ssdm")//添加下拉框的option
+			for(var i=0;i<json.length;i++){	
+				$("<option value='"+json[i].dm+"'>"+"("+json[i].dm+")"+json[i].mc+"</option>").appendTo("#ssdm")//添加下拉框的option
+			}
+		}
+	});
+
+}
+	
+// 处理返回信息的函数
+function trim(s) {
+  var q='';
+  for(i=0;i<s.length;i++){
+      var curChar=s.charAt(i);
+      if(curChar!=' ')
+       q=q+curChar;
+    }
+    return q;
+}
+  /** 
+ * 根据长度截取先使用字符串，超长部分追加... 
+ * @param str 对象字符串 
+ * @param len 目标字节长度 
+ * @return 处理结果字符串 
+ */ 
+function cutString(str, len) { 
+    //length属性读出来的汉字长度为1 
+    if(str.length*2 <= len) { 
+        return str; 
+    } 
+    var strlen = 0; 
+    var s = ""; 
+    for(var i = 0;i < str.length; i++) { 
+        s = s + str.charAt(i); 
+        if (str.charCodeAt(i) > 128) { 
+            strlen = strlen + 2; 
+            if(strlen >= len){ 
+                return s.substring(0,s.length-1) + "..." + "<a href='#' title='"+str+"'>▼</a>"; 
+            } 
+        } else { 
+            strlen = strlen + 1; 
+            if(strlen >= len){ 
+                return s.substring(0,s.length-2) + "..." + "<a href='#' title='"+str+"'>▼</a>";  
+            } 
+        } 
+    } 
+    return s; 
+}
+</script>
+<body>
+
+
+
+
+
+<style type="text/css">
+html,body{ margin:0; padding:0;}
+/*topNav layout*/
+#nav_top{ font:12px/1.5 '\5FAE\8F6F\96C5\9ED1','\5B8B\4F53', Arial, Helvetica, sans-serif; background: url(https://t1.chsi.com.cn/yz/images/base/nav_top_bg.png) repeat-x left top; text-align:left;  border-bottom:solid 1px #c7c7c7; }
+.topNav{ height:35px; line-height:35px; font-size:12px; background:#367bb9;  margin-bottom:10px; }
+.topNav950{ margin:0 auto; width:950px; text-align:left; clear:both;}
+.topNav_l{ float:left; width:800px; height:35px; overflow:hidden; line-height:35px;}
+.topNav_l a { float: left;    padding: 0 5px;	display:inline;  }
+.topNav_l a:link, .topNav_l a:visited { color:#333;  text-decoration: none;}
+.topNav_l a:hover {   text-decoration:underline;}
+.topNav_r { height:35px;line-height:35px;  float: right;  width: 150px; z-index: 999;}
+
+#nav_top p.bread_nav{ line-height:38px; height:38px;}
+.topNav input[type="text"], .topNav input[type="password"] {	resize: none;    border: 1px solid #CCCCCC;    border-radius: 3px 3px 3px 3px;    color: #555555;
+    display: inline-block;    font-size: 12px;    padding-left: 3px;    vertical-align: middle;}
+#nav_top input[type="text"]:hover,#nav_top input[type="password"]:hover {    border-color: rgba(82, 168, 236, 0.8);    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) inset, 0 0 8px rgba(82, 168, 236, 0.6);    outline: 0 none;}
+
+</style>
+
+<div class="topNav" id="nav_top">
+	<div class="topNav950">
+		<div class="topNav_l">
+			<a href="http://yz.chsi.com.cn/">首页</a><a href="http://yz.chsi.com.cn/kyzx/zcdh/" target="_self">政策</a><a href="http://yz.chsi.com.cn/kyinfo/" target="_self">资讯</a><a href="http://yz.chsi.com.cn/sch/"
+				target="_self">院校信息</a><a href="http://yz.chsi.com.cn/zyk/" target="_self">专业知识库</a><a href="http://yz.chsi.com.cn/zxdy/" target="_self">在线咨询</a><a href="http://yz.chsi.com.cn/sswbgg/"
+				target="_self">网报公告</a><a href="http://yz.chsi.com.cn/zsml/zyfx_search.jsp" target="_self">硕士目录</a><a href="http://yz.chsi.com.cn/yzwb/" target="_self">统考网报</a><a
+				href="http://yz.chsi.com.cn/user/?entrytype=yzgr" target="_self">准考证下载</a><a href="http://yz.chsi.com.cn/yztj/" target="_self">调剂</a><a href="http://yz.chsi.com.cn/tm/" target="_blank">推免服务系统</a><a href="http://yz.chsi.com.cn/bsmlcx/index.jsp" target="_self">博士目录</a><a href="http://yz.chsi.com.cn/bsbm/" target="_blank">博士网报</a>
+		</div>
+		<div class="topNav_r" id="navLogin">
+			<div class="nav">
+				
+					
+						
+
+
+<div id="yz_NavLoginBefore" style="display:block"> 
+      <div id="yz_NavLogin"><a class="loginIn" href="http://yz.chsi.com.cn/user/?entrytype=yzgr" id="yz_login_a" >登录</a>　<a href="https://account.chsi.com.cn/account/preregister.action?from=yz-home">注册</a> </div>
+</div>
+					
+					
+				
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="header" class="container_24 clearfix">
+  <div class="grid_24 clearfix"> <img src='http://t2.chsi.com.cn/yz/images/custom/zsml_banner.png' alt="研招网硕士专业目录查询" align="middle" /> </div>
+  <div class="grid_24 clearfix">
+    <div class="cur_position">当前位置：<a href="/" target="_self">首页</a> >  <a href="/zsml/zyfx_search.jsp" target="_self">硕士专业目录查询</a></div>
+  </div>
+</div>
+<div id="content" class="container_24 clearfix">
+  <div class="grid_24 clearfix">
+    <div class="cont">
+      <h2>2015年硕士专业目录查询</h2>
+      <div class="form-zsml" >
+        <form name="form2" method="post" id="form2" action = "/zsml/queryAction.do" >
+          <table align="center" id="top_form">
+            <tbody>
+              <tr>
+                <td ><SELECT name="ssdm" id="ssdm" style="width:150px;">
+			<option value="" selected>选择招生单位所在省市</OPTION>
+	  </SELECT></td>
+                <td><SELECT name="mldm" id="mldm" onchange="initYjxk();" style="width:150px;">
+			<option value="" selected>门类/类别</OPTION>
+	  </SELECT><input type="hidden" name="mlmc" id="mlmc" /></td>
+                <td ><span class="red">*</span><SELECT name="yjxkdm" id="yjxkdm" style="width:193px;">
+			<option value="" selected>学科/类别</OPTION>
+	  </SELECT></td>
+                <td><input type="text" id="dwmc" name=dwmc size=20 onblur="if(this.value==''){this.value='请输入招生单位名称';this.style.color='#AAA9A9';}" onfocus="if(this.value=='请输入招生单位名称'){this.value='';this.style.color='#555454'}" style="width:145px;"  /></td>
+                <td><input type="text" id="zymc" name=zymc size=20 onblur="if(this.value==''){this.value='请输入专业名称';this.style.color='#AAA9A9';}" onfocus="if(this.value=='请输入专业名称'){this.value='';this.style.color='#555454'}"  style="width:135px;" /></td>
+                <td ><input type="button" class="buttonDeep" value="查询" onclick="doQuery1()"/></td>
+              </tr>
+            </tbody>
+          </table>
+          <p class="text_center red">（查询说明：招生单位名称和专业名称至少输入一项）</p>
+        </form>
+      </div>
+    </div>
+<script language="javascript"> 
+initSs();
+initMl();
+initYjxk();
+doSelect(document.getElementById("form2").ssdm,'65');
+doSelect(document.getElementById("form2").yjxkdm,'');
+doSelect(document.getElementById("form2").mldm,'');
+$("#dwmc").attr("value","昌吉学院");
+$("#zymc").attr("value","");
+
+ $(function(){
+			if( $.trim($("#dwmc").val())==''){ $("#dwmc").css("color",'#AAA9A9'); $("#dwmc").val('请输入招生单位名称');}
+			if( $.trim($("#zymc").val())==''){$("#zymc").val('请输入专业名称');$("#zymc").css("color",'#AAA9A9');}	
+			})
+ 
+</script>
+
+    <div class="clearfix" id="zy_result">
+      <div class="chooseDiv">
+         <form name="form3" method="post" id="form3" action = "/zsml/querySchAction.do" >
+         <input type="hidden" name="ssdm" value="65"/>
+        <input type="hidden" name="dwmc" value="昌吉学院"/>
+        <input type="hidden" name="mldm" value=""/>
+        <input type="hidden" name="mlmc" value=""/>
+        <input type="hidden" name="yjxkdm" value=""/>
+        <input type="hidden" name="zymc" value=""/>
+        <input type="hidden" name="pageno" value="1"/>
+         <table width="100%">
+        <tbody>
+        <tr>
+        <td width="110" class="text_right"> <strong>专业筛选：</strong></td>
+        <td>  
+        <ul class="clearfix">
+        
+        <li>
+        
+            <input type="checkbox" value="085204" id="zys085204" name="zys">
+            
+        
+            <label for="zys085204"  title="[085204]材料工程" >[085204]材料工程</label> &nbsp;</li>
+        
+        <li>
+        
+            <input type="checkbox" value="085216" id="zys085216" name="zys">
+            
+        
+            <label for="zys085216"  title="[085216]化学工程" >[085216]化学工程</label> &nbsp;</li>
+        
+            
+         </ul>
+        <div class="clearfix" style="border-top:dotted 1px #ccc; margin-top:5px; padding-top:5px;">
+       <input type="button" value="确定" style="height:auto" class="buttonDeep" onclick="sub2()"/>
+       </div>
+      
+            
+            </td>
+        </tr>
+        
+        </tbody>
+        </table>
+        </form>
+            <div class="clear">&nbsp;</div>
+      </div>
+      <div id="sch_list">
+        <table class="tablePro tableBordered">
+          <thead>
+            <tr>
+             <th>院系所名称</th>
+              <th>专业代码名称</th>
+              <th>研究方向</th>
+              <th width="80">指导教师</th>
+              <th width="80">拟招生人数</th>
+              <th width="80">考试范围</th>
+              <th width="80">跨专业</th>
+              <th width="80">备注</th>
+            </tr>
+          </thead>
+          <tbody>
+             
+  <tr>
+
+    
+    <td>(000)不区分院系所</td>  
+    
+    <td>(085204)(专业学位)材料工程</td> 
+    
+    <td>(00)不区分研究方向</td>
+    
+    <td class="show_more_msg text_center">&nbsp;<script language="javascript">
+    	document.write(cutString('',6));
+    	</script></td>   
+    
+    <td class="show_more_msg text_center">
+    <script language="javascript">
+    	document.write(cutString('专业：10,其中推免：0',6));
+    	</script>
+    </td>              
+
+
+
+
+
+
+    <td class="text_center"><a href="/zsml/kskm.jsp?id=109972100008520400&dwmc=(10997)%E6%98%8C%E5%90%89%E5%AD%A6%E9%99%A2&yxsmc=(000)%E4%B8%8D%E5%8C%BA%E5%88%86%E9%99%A2%E7%B3%BB%E6%89%80&zymc=(085204)%28%E4%B8%93%E4%B8%9A%E5%AD%A6%E4%BD%8D%29%E6%9D%90%E6%96%99%E5%B7%A5%E7%A8%8B&yjfxmc=(00)%E4%B8%8D%E5%8C%BA%E5%88%86%E7%A0%94%E7%A9%B6%E6%96%B9%E5%90%91" target="_blank">查看</a></td> 
+    <td class="text_center">&nbsp;<a href="/zsml/kzykskm.jsp?fxid=&dwmc=&dwmc=(10997)%E6%98%8C%E5%90%89%E5%AD%A6%E9%99%A2&yxsmc=(000)%E4%B8%8D%E5%8C%BA%E5%88%86%E9%99%A2%E7%B3%BB%E6%89%80&zymc=(085204)%28%E4%B8%93%E4%B8%9A%E5%AD%A6%E4%BD%8D%29%E6%9D%90%E6%96%99%E5%B7%A5%E7%A8%8B&yjfxmc=(00)%E4%B8%8D%E5%8C%BA%E5%88%86%E7%A0%94%E7%A9%B6%E6%96%B9%E5%90%91" target="_blank"></a></td>     
+  
+    <td class="show_more_msg text_center">
+	   &nbsp;
+	   <script language="javascript">
+	   document.write(cutString('',6));
+	   </script>
+    	</td>
+  </tr>
+ 
+  <tr>
+
+    
+    <td>(000)不区分院系所</td>  
+    
+    <td>(085216)(专业学位)化学工程</td> 
+    
+    <td>(00)不区分研究方向</td>
+    
+    <td class="show_more_msg text_center">&nbsp;<script language="javascript">
+    	document.write(cutString('',6));
+    	</script></td>   
+    
+    <td class="show_more_msg text_center">
+    <script language="javascript">
+    	document.write(cutString('专业：12,其中推免：0',6));
+    	</script>
+    </td>              
+
+
+
+
+
+
+    <td class="text_center"><a href="/zsml/kskm.jsp?id=109972100008521600&dwmc=(10997)%E6%98%8C%E5%90%89%E5%AD%A6%E9%99%A2&yxsmc=(000)%E4%B8%8D%E5%8C%BA%E5%88%86%E9%99%A2%E7%B3%BB%E6%89%80&zymc=(085216)%28%E4%B8%93%E4%B8%9A%E5%AD%A6%E4%BD%8D%29%E5%8C%96%E5%AD%A6%E5%B7%A5%E7%A8%8B&yjfxmc=(00)%E4%B8%8D%E5%8C%BA%E5%88%86%E7%A0%94%E7%A9%B6%E6%96%B9%E5%90%91" target="_blank">查看</a></td> 
+    <td class="text_center">&nbsp;<a href="/zsml/kzykskm.jsp?fxid=&dwmc=&dwmc=(10997)%E6%98%8C%E5%90%89%E5%AD%A6%E9%99%A2&yxsmc=(000)%E4%B8%8D%E5%8C%BA%E5%88%86%E9%99%A2%E7%B3%BB%E6%89%80&zymc=(085216)%28%E4%B8%93%E4%B8%9A%E5%AD%A6%E4%BD%8D%29%E5%8C%96%E5%AD%A6%E5%B7%A5%E7%A8%8B&yjfxmc=(00)%E4%B8%8D%E5%8C%BA%E5%88%86%E7%A0%94%E7%A9%B6%E6%96%B9%E5%90%91" target="_blank"></a></td>     
+  
+    <td class="show_more_msg text_center">
+	   &nbsp;
+	   <script language="javascript">
+	   document.write(cutString('',6));
+	   </script>
+    	</td>
+  </tr>
+ 
+            
+          </tbody>
+        </table>
+      </div>
+    </div>
+     
+     
+     <div class="clearfix">
+      <p>注：本系统数据由各招生单位上报，如有疑问请咨询相关招生单位。</p>
+    <ul class="ulPage">
+     <li class="lip" id="page_total">1/1</li>
+    <li class="lip"><a href="#" onclick="nextPage(1)">首页</a></li>
+    
+	    	<li class="lip unable">&lt;&lt;</li>
+	    	
+    
+				<li class="lip selected">1</li>
+				 
+    
+	    	<li class="lip unable">&gt;&gt;</li>
+	    	
+     <li class="lip"><a href="#" onclick="nextPage(1)">末页</a></li>
+      <li>
+        <input type="text" name="goPageNo" id="goPageNo" class="page_input" value="" rel="1" style="height:24px; line-height:24px;">
+      </li>
+      <li class="lip"><a href="#" onclick="goPageNo()">GO</a></li>
+    </ul>
+
+    
+  </div>
+  </div>
+</div>
+
+
+
+
+
+<style type="text/css">#footer{ width:950px; margin:10px auto; padding:10px 0; overflow:hidden; text-align:center; border-top: 1px solid #BFE0F0; line-height:24px; clear:both; font-size:12px;}#footer a:link,#footer a:visited {color: #333333;    text-decoration: none;}#footer a:hover {    color: #990000;
+    text-decoration: underline;}</style>
+  <div class="footer" id="footer"> <a href="http://www.chsi.com.cn/" target="_blank">[ CHSI首页 ]</a> -- <a href="http://www.chsi.com.cn/about/about_center.shtml" target="_blank">[ 中心简介 ]</a> -- <a href="http://www.chsi.com.cn/about/contact.shtml" target="_blank">[ 联系我们 ]</a> -- <a href="/doc/copyright.jsp" target="_blank">[ 版权声明 ]</a> -- <a href="/sitemap.jsp" target="_blank">[ 网站地图 ]</a> -- <a href="/doc/adv.jsp" target="_blank">[ 宣传代理 ]</a> -- <a href="mailto:yzyz@chsi.com.cn" target="_blank">[ 我要投稿 ]</a> <br />
+    主管单位：教育部高校学生司　　主办单位：<a href="http://www.chsi.com.cn/" target="_blank">全国高等学校学生信息咨询与就业指导中心</a>　　<a href="http://www.miibeian.gov.cn/" style="color:#C00;" target="_blank">京ICP证030485号</a><br />
+    承办单位：中国高等教育学生信息网　　　服务热线：010-82199588　　　客服邮箱：kefu#chsi.com.cn（将#替换为@）</div>
+
+
+
+<script language="javascript"> 
+
+
+function sub2(){
+		var form3 = document.getElementById("form3"); 
+		form3.submit(); 
+	}
+	
+	var form2 = document.getElementById("form2");       
+        function doQuery(){ 
+        
+            form2.actionType.value="doQuery"; 
+  
+  if (form2.dwmc.value == "请输入招生单位名称") {
+		form2.dwmc.value = "";
+	}
+	if (form2.zymc.value == "请输入专业名称") {
+		form2.zymc.value = "";
+	}			
+	
+	
+            form2.submit(); 
+		}
+		
+		
+		
+	function doQuery1(){
+ var form2 = document.getElementById("form2");
+
+			
+if (form2.dwmc.value == "请输入招生单位名称") {
+	form2.dwmc.value = "";
+	
+}
+if (form2.zymc.value == "请输入专业名称") {
+	form2.zymc.value = "";
+	
+}
+
+
+
+if ((form2.zymc.value.indexOf("%") != -1) || (form2.zymc.value.indexOf("％") != -1)) {
+	window.alert("不允许输入'%'");
+	form2.dwmc.value = "请输入招生单位名称";
+  form2.zymc.value = "请输入专业名称";
+return false;
+}
+if ((form2.zymc.value.indexOf("★") == -1) || (form2.zymc.value.indexOf("*") == -1)) {
+var a = form2.zymc.value;
+var l = OK(a);
+if(escape(a).indexOf("%u")!=-1){ 
+	if(!l){
+window.alert("输入的专业名称至少为连续两个汉字");
+form2.dwmc.value = "请输入招生单位名称";
+form2.zymc.value = "请输入专业名称";
+return false;
+	}
+}
+}
+
+
+
+
+
+
+if ((form2.dwmc.value.indexOf("%") != -1) || (form2.dwmc.value.indexOf("％") != -1)) {
+	window.alert("不允许输入'%'");
+	form2.dwmc.value = "请输入招生单位名称";
+  form2.zymc.value = "请输入专业名称";
+return false;
+}
+if ((form2.dwmc.value.indexOf("★") == -1) || (form2.dwmc.value.indexOf("*") == -1)) {
+var a = form2.dwmc.value;
+var l = OK(a);
+if(escape(a).indexOf("%u")!=-1){ 
+	if(!l){
+window.alert("输入的单位名称至少为连续两个汉字");
+form2.dwmc.value = "请输入招生单位名称";
+form2.zymc.value = "请输入专业名称";
+return false;
+	}
+}
+}
+
+if ((form2.zymc.value == "") && (form2.dwmc.value == "") && (form2.yjxkdm.value == "") && (form2.ssdm.value == "") && (form2.mldm.value == "") ){
+window.alert("至少填写或选择一项");
+form2.dwmc.value = "请输入招生单位名称";
+form2.zymc.value = "请输入专业名称";
+}else{
+  	var selectedIndexOfMldm=document.getElementById("mldm").selectedIndex;
+  	var mlmc=document.getElementById("mldm").options[selectedIndexOfMldm].text;
+  	mlmc=mlmc.substring(mlmc.indexOf(")")+1,mlmc.length);
+  	form2.mlmc.value = mlmc;
+    form2.submit(); 
+}
+ } 
+ 
+ 
+function OK(fData)
+{
+    var ok = false;
+    for (var i=0;i<fData.length;i++)
+    {
+        if ((fData.charCodeAt(i) < 0) || (fData.charCodeAt(i) > 255)){
+        	if(i + 1 < fData.length){
+        		if ((fData.charCodeAt(i + 1) < 0) || (fData.charCodeAt(i + 1) > 255)){
+        			ok = true;
+        		}
+        	}
+        
+        }
+    }
+    return ok;
+}
+
+function nextPage(pageno){ 
+	var form3 = document.getElementById("form3"); 
+	form3.pageno.value=pageno;
+	form3.submit(); 
+}
+
+function goPageNo(){ 
+	var pageno = document.getElementById("goPageNo").value;
+	if(parseInt(pageno) > parseInt($("#goPageNo").attr("rel"))){ alert("此页不存在"); return false;}
+	else{	nextPage(pageno)};
+}
+ </script>
+</body>
+</html>
+
+
+array(10) {
+  [0]=>
+  string(12) "School_info:"
+  [1]=>
+  string(12) "昌吉学院"
+  [2]=>
+  string(5) "10997"
+  [3]=>
+  string(120) "http://yz.chsi.com.cn/zsml/querySchAction.do?ssdm=65&dwmc=%E6%98%8C%E5%90%89%E5%AD%A6%E9%99%A2&mldm=&mlmc=&yjxkdm=&zymc="
+  [4]=>
+  string(24) "新疆维吾尔自治区"
+  [5]=>
+  string(2) "65"
+  [6]=>
+  string(1) "0"
+  [7]=>
+  string(1) "0"
+  [8]=>
+  string(1) "0"
+  [9]=>
+  string(1) "0"
+}
