@@ -230,7 +230,7 @@ class schoolspider {
 		
 		$a_school_info = array(
 			'name' => $cl_school->get_name(),//学校名称
-			'name_id' => $cl_school->get_name_id(),
+			'id' => $cl_school->get_id(),
 			'url' => $cl_school->get_url(),
 			'area' => $cl_school->get_area(),//学校地区
 			'area_id' => $cl_school->get_area_id(),
@@ -286,7 +286,7 @@ class subjectsipder {
 				$school_url = $a_school[3];
 				$cl_school = new school();
 				$cl_school->set_name($school_name);
-				$cl_school->set_name_id($school_id);
+				$cl_school->set_id($school_id);
 				$cl_school->set_url($school_url);
 				$cl_school->set_area($school_arae);
 				$cl_school->set_area_id($school_arae_id);
@@ -334,7 +334,7 @@ class subjectsipder {
 	private function get_subjects_by_pageno($url, $n_page){
 		
 		$url = $url . "&pageno=$n_page";
-		//echo $url;
+		echo "Crawl url : \t" . $url . "\n";
 		
 		$ch2 = curl_init();
 		curl_setopt($ch2, CURLOPT_URL, $url);
@@ -352,6 +352,7 @@ class subjectsipder {
 		$cl_html->load($html);
 		$a_subjects = $cl_html->find('div[id=sch_list] tr');
 		foreach($a_subjects  as $e_subject){
+			//解析行日志
 			$this->parse_subject_info($e_subject->outertext);			
 			//echo $this->cl_school->get_name() . "\n";
 			//echo $e_subject->outertext . "\n";
@@ -359,23 +360,40 @@ class subjectsipder {
 		return true;			
 	}
 	
-	//分析专业描述的列表 
-	//输入每行的数据
+	//分析专业描述的列表 -- 解析行日志
+	//输入 每行 的数据
 	//输出专业 描述 结构体
 	private function parse_subject_info($html){
-		$cl_subject = new subject();
 		
-		$cl_subject->set_cl_school($this->cl_school);
-		//var_dump($cl_subject);
 		
-		$cl_subject->parse_html($html);
+		$cl_parse = new html_parse_yz();
+		//
+		//$cl_parse->set_cl_school($this->cl_school);
 		
+		// 分析抓取数据的每一个学校
+		$cl_school = $this->cl_school;
+		$cl_department = $cl_parse->parse_html($html, "department");
+		if(!$cl_department){
+			return false;
+		}
+		//var_dump($cl_department);
+		$cl_subject = $cl_parse->parse_html($html, "subject");
+		$cl_research = $cl_parse->parse_html($html, "research");
+		
+	echo $cl_school->get_name(). "\t"
+	. $cl_school->get_id() . "\t"
+	. $cl_department->get_name() . "\t"
+	. $cl_department->get_id() . "\t"
+	. $cl_subject->get_name() . "\t"
+	. $cl_subject->get_id() . "\t"
+	. $cl_research->get_name() . "\t"
+	. $cl_research->get_id() . "\n";
 		
 		return true;
 	}
 	
 	
-	//分析学校的跟页面中 专业列表有多少列
+	//分析学校的跟页面中 专业列表 有多少 子页面
 	private function get_subjects_page_info($url){
 		$ch2 = curl_init();
 		//echo "Crawl Root : $url \n";
@@ -405,16 +423,145 @@ class subjectsipder {
 			return false;
 		}		
 	}
+
+}
+
+class html_parse {
+	
+	private $html;
+	
+	public function get_html(){return $this->html;}
+	
+	public function set_html($value){$this->html = $value;return true;}
+	
+	public function parse_html(){}
+		
+}
+
+class html_parse_yz extends html_parse {
+	
+	public function parse_html($html, $flag){
+		$this->html = $html;
+		switch ($flag){
+			case "school":
+				return $this->parse_html_school();
+				break;
+			case "department":
+				$cl_department = $this->parse_html_department();
+				return $cl_department;
+				break;
+			case "subject":
+				return $this->parse_html_subject();
+				break;
+			case "research":
+				return $this->parse_html_research();
+				break;
+			default :
+				return false;
+				break;
+		}
+	}
+	public function parse_html_school(){
+		//return class school object $cl_school
+		
+	}
+	public function parse_html_department(){
+		//return class department object $cl_department
+		//echo deparment
+		$html = $this->html;
+		$cl_html = new simple_html_dom();
+		$cl_html->load($html);
+		$a_html = $cl_html->find('td');
+		//$a_url = $cl_html->find('td a a');
+		if(count($a_html)){		
+			$cl_department = new department();
+			$str_department = $a_html[0]->innertext;
+			//id
+			preg_match('(\([^\(\)]*\))',$str_department,$a_department_id);
+			$n_department_id = substr($a_department_id[0], 1, 3);
+			//name
+			$a_tmp = explode(")", $str_department);
+			$s_department_name = array_pop($a_tmp);
+			//set object attribute			
+			$cl_department->set_name($s_department_name);
+			$cl_department->set_id($n_department_id);
+			//echo $s_department_name. "\n";
+		} else {
+			return false;
+		}
+		return $cl_department;	
+	}
+	public function parse_html_subject(){
+		//return class subject object $cl_subject
+		//echo "subject";
+		$html = $this->html;
+		$cl_html = new simple_html_dom();
+		$cl_html->load($html);
+		$a_html = $cl_html->find('td');
+		//$a_url = $cl_html->find('td a a');
+		if(count($a_html)){		
+			$cl_subject = new subject();
+			$str_subject = $a_html[1]->innertext;
+			//id
+			preg_match('(\([^\(\)]*\))',$str_subject,$a_subject_id);
+			$n_subject_id = substr($a_subject_id[0], 1, 5);
+			//name
+			$a_tmp = explode(")", $str_subject);
+			$n_subject = count($a_tmp);
+			$s_subject_name = array_pop($a_tmp);
+			//type
+			if($n_subject == 3){
+				$n_type = 1;//专业学位
+			} else {
+				$n_type = 0;//学术型
+			}
+			//set object attribute
+			$cl_subject->set_name($s_subject_name);
+			$cl_subject->set_id($n_subject_id);
+			$cl_subject->set_type($n_type);
+			//echo $s_subject_name. "\n";
+		} else {
+			return false;
+		}
+		return $cl_subject;
+	}
+	public function parse_html_research(){
+		//return class research object $cl_research		
+		//echo "research";
+		$html = $this->html;
+		$cl_html = new simple_html_dom();
+		$cl_html->load($html);
+		$a_html = $cl_html->find('td');
+		//$a_url = $cl_html->find('td a a');
+		if(count($a_html)){		
+			$cl_research = new research();
+			$str_research = $a_html[2]->innertext;
+			//id
+			preg_match('(\([^\(\)]*\))',$str_research,$a_research_id);
+			$n_research_id = substr($a_research_id[0], 1, 2);
+			//name
+			$a_tmp = explode(")", $str_research);
+			$s_research_name = array_pop($a_tmp);
+			//set object attribute			
+			$cl_research->set_name($s_research_name);
+			$cl_research->set_id($n_research_id);
+			//echo $s_research_name . "\n";
+		} else {
+			return false;
+		}
+		return $cl_research;
+	}
 }
 
 
+//学校
 class school {
 	
 	private $root = "http://yz.chsi.com.cn";
 	private $html = "";
 	
 	private $name;//学校名称
-	private $name_id;
+	private $id;
 	private $url;
 	private $area;//学校地区
 	private $area_id;
@@ -425,7 +572,7 @@ class school {
 	
 	
 	public function get_name	(){return $this->name;}
-	public function get_name_id	(){return $this->name_id;}
+	public function get_id		(){return $this->id;}
 	public function get_url		(){return $this->url;}
 	public function get_area	(){return $this->area;}
 	public function get_area_id	(){return $this->area_id;}
@@ -436,7 +583,7 @@ class school {
 	
 	
 	public function set_name	($value){$this->name	= $value;return true;}
-	public function set_name_id	($value){$this->name_id	= $value;return true;}
+	public function set_id	($value){$this->id	= $value;return true;}
 	public function set_url		($value){$this->url		= $value;return true;}
 	public function set_area	($value){$this->area	= $value;return true;}
 	public function set_area_id	($value){$this->area_id	= $value;return true;}
@@ -476,7 +623,7 @@ class school {
 				return false;
 			}
 			preg_match('(\([^\(\)]*\))',$str_name,$res_name);
-			$this->name_id = substr($res_name[0], 1, 5);;			
+			$this->id = substr($res_name[0], 1, 5);;			
 			$this->url = $this->root . $a_school_url[0]->href;
 						
 			//学校地区
@@ -498,7 +645,7 @@ class school {
 			$this->zzhx = trim($a_school_html[4]->innertext) == '&nbsp;' ? 0 : 1;
 			$this->bsd = trim($a_school_html[5]->innertext) == '&nbsp;' ? 0 : 1;
 			
-			//var_dump($name_id, $name, $url, $area, $area_id, $dlyx, $zzhx, $bsd, $level);
+			//var_dump($id, $name, $url, $area, $area_id, $dlyx, $zzhx, $bsd, $level);
 			return true;
 			
 		}
@@ -507,44 +654,91 @@ class school {
 	
 }
 
+//学院
+class department{
+	private $cl_school;
+	
+	private $name;
+	private $id;
+	private $global_rank;
+	private $national_rank;
+	private $social_rank;
+	private $number;
+	private $examption_number;
+		
+	public function get_cl_school		(){return $this->cl_school;}
+	public function get_name			(){return $this->name;}
+	public function get_id				(){return $this->id;}
+	public function get_global_rank		(){return $this->global_rank;}
+	public function get_national_rank	(){return $this->national_rank;}
+	public function get_social_rank		(){return $this->social_rank;}
+	public function get_number			(){return $this->number;}
+	public function get_examption_number(){return $this->examption_number;}
+	
+	public function set_cl_school		($value){$this->cl_school 		= $value; return true;}
+	public function set_name			($value){$this->name			= $value; return true;}
+	public function set_id				($value){$this->id				= $value; return true;}
+	public function set_global_rank		($value){$this->global_rank		= $value; return true;}
+	public function set_national_rank	($value){$this->national_rank	= $value; return true;}
+	public function set_social_rank		($value){$this->social_rank		= $value; return true;}
+	public function set_number			($value){$this->number			= $value; return true;}
+	public function set_examption_number($value){$this->examption_number= $value; return true;}
+	
+	public function html(){
+		echo "html";
+		return;
+	}
+}
+
+//专业
 class subject {
 	
 	private $html;
 	
 	private $cl_school;
-	private $department_name;
-	private $department_id;
-	private $subject_name;
-	private $subject_id;
-	private $research_name;
-	private $research_id;
-	private $tearcher;
+	private $cl_department;
+	
+	private $name;
+	private $id;
+	private $global_rank;
+	private $national_rank;
+	private $social_rank;
+	private $department_rank;
+	private $type;
 	private $number;
 	private $examption_number;
-	private $exam_subjects;
-	private $cross_subject;
-	private $remark;
-	
-	public function get_cl_school		(){return $this->cl_school;}
-	public function get_department_name	(){return $this->department_name;}	
-	public function get_department_id	(){return $this->department_id;}
-	public function get_subject_name		(){return $this->subject_name;}
-	public function get_subject_id		(){return $this->subject_id;}
-	public function get_research_name	(){return $this->research_name;}
-	public function get_research_id		(){return $this->research_id;}
-	public function get_tearcher			(){return $this->tearcher;}
-	public function get_number			(){return $this->number;}
-	public function get_examption_number	(){return $this->examption_number;}
-	public function get_exam_subjects	(){return $this->exam_subjects;}
-	public function get_cross_subject	(){return $this->cross_subject;}
-	public function get_remark			(){return $this->remark;}
 
+	public function get_html			(){return $this->html;}
+    
+	public function get_cl_school		(){return $this->cl_school;}
+	public function get_cl_department	(){return $this->cl_department;}
 	
-	public function set_cl_school($value){$this->cl_school = $value; return true;}
+	public function get_name	(){return $this->subject_name;}
+	public function get_id		(){return $this->subject_id;}
+	public function get_global_rank		(){return $this->global_rank;}
+	public function get_national_rank	(){return $this->national_rank;}
+	public function get_social_rank		(){return $this->social_rank;}
+	public function get_department_rank	(){return $this->department_rank;}
+	public function get_type			(){return $this->type;}
+	public function get_number			(){return $this->number;}
+    public function get_examption_number(){return $this->examption_number;}
+	
+	public function set_cl_school		($value){$this->cl_school 		= $value; return true;}
+	public function set_cl_department	($value){$this->cl_department	= $value; return true;}
+	
+	public function set_name	($value){$this->subject_name	= $value; return true;}
+	public function set_id		($value){$this->subject_id		= $value; return true;}
+	public function set_global_rank		($value){$this->global_rank		= $value; return true;}
+	public function set_national_rank	($value){$this->national_rank	= $value; return true;}
+	public function set_social_rank		($value){$this->social_rank		= $value; return true;}
+	public function set_department_rank	($value){$this->department_rank	= $value; return true;}
+	public function set_type			($value){$this->type			= $value; return true;}
+	public function set_number			($value){$this->number			= $value; return true;}
+	public function set_examption_number($value){$this->examption_number= $value; return true;}
 	
 	public function parse_html($html){
 		$this->html = $html;
-		//echo $html;
+		echo $html;
 		$subject_html = $this->html;
 		
 		$cl_html = new simple_html_dom();
@@ -554,12 +748,68 @@ class subject {
 		$a_school_url = $cl_html->find('td a a');
 		if(count($a_school_html)){
 			echo $this->cl_school->get_name() . "\t" . $a_school_html[0]->innertext . "\n";
-		}
-		
-	}
-	
+		}		
+	}	
 }
 
+//方向
+class research {
+	private $html;
+	
+	private $cl_school;
+	private $cl_department;
+	private $cl_subject;
+	
+	private $name;
+	private $id;
+	private $global_rank;
+	private $national_rank;
+	private $social_rank;
+	private $subject_rank;
+	private $number;
+	private $examption_number;
+	private $exam_subjects;
+	private $tearcher;
+	private $cross_subject;
+	private $remark;
+	
+	public function get_html			(){return $this->html;}
+	 
+	public function get_cl_school		(){return $this->cl_school;}
+	public function get_cl_department	(){return $this->cl_department;}
+	public function get_cl_subject		(){return $this->cl_subject;}
+     
+	public function get_name			(){return $this->name;}
+	public function get_id				(){return $this->id;}
+	public function get_global_rank		(){return $this->global_rank;}
+	public function get_national_rank	(){return $this->national_rank;}
+	public function get_social_rank		(){return $this->social_rank;}
+	public function get_subject_rank	(){return $this->subject_rank;}
+	public function get_number			(){return $this->number;}
+	public function get_examption_number(){return $this->examption_number;}
+	public function get_exam_subjects	(){return $this->exam_subjects;}
+	public function get_tearcher		(){return $this->tearcher;}
+	public function get_cross_subject	(){return $this->cross_subject;}
+	public function get_remark			(){return $this->remark;}
+
+	public function set_cl_school		($value){$this->cl_school 		= $value; return true;}
+	public function set_cl_department	($value){$this->cl_department 	= $value; return true;}
+	public function set_cl_subject		($value){$this->cl_subject 		= $value; return true;}
+
+	public function set_name			($value){$this->name			= $value; return true;}
+	public function set_id				($value){$this->id			= $value; return true;}
+	public function set_global_rank		($value){$this->global_rank		= $value; return true;}
+	public function set_national_rank	($value){$this->national_rank	= $value; return true;}
+	public function set_social_rank		($value){$this->social_rank		= $value; return true;}
+	public function set_subject_rank	($value){$this->subject_rank	= $value; return true;}
+	public function set_number			($value){$this->number			= $value; return true;}
+	public function set_examption_number($value){$this->examption_number= $value; return true;}
+	public function set_exam_subjects	($value){$this->exam_subjects	= $value; return true;}
+	public function set_tearcher		($value){$this->tearcher		= $value; return true;}
+	public function set_cross_subject	($value){$this->cross_subject	= $value; return true;}
+	public function set_remark			($value){$this->remark			= $value; return true;}
+	
+}
 
 //$cl_schoolslist = new schoolspider();
 //$cl_schoolslist->spider_exec();
