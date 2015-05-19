@@ -71,7 +71,8 @@ class db_school_info {
 	private $db;
 	private $tab_sql = <<< SCHOOL_DB_SQL
 CREATE TABLE school_info
-(ID INT PRIMARY KEY NOT NULL,
+(ID_INT INTEGER PRIMARY KEY,
+ID TEXT UNIQUE,
 SCHOOL_NAME TEXT NOT NULL,
 SCHOOL_ID INT NOT NULL,
 SCHOOL_GLOBAL_RANK INT,
@@ -79,6 +80,10 @@ SCHOOL_NATIONAL_RANK INT,
 SCHOOL_SOCIAL_RANK INT,
 SCHOOL_AREA TEXT,
 SCHOOL_AREA_ID INT,
+SCHOOL_LEVEL TEXT,
+SCHOOL_DLYX INT,
+SCHOOL_ZZHX INT,
+SCHOOL_BSD INT,
 DEPARTMENT_NAME TEXT,
 DEPARTMENT_ID INT,
 DEPARTMENT_GLOBAL_RANK INT,
@@ -95,7 +100,6 @@ SUBJECT_SOCIAL_RANK INT,
 SUBJECT_TYPE TEXT,
 SUBJECT_NUMBER INT,
 SUBJECT_EXEMPTION_NUMBER INT,
-SUBJECT_EMAM_SUBJECTS TEXT,
 RESEARCH_NAME TEXT,
 RESEARCH_ID INT,
 RESEARCH_GLOBAL_RANK INT,
@@ -110,7 +114,8 @@ RESEARCH_CROSS_SUBJECT INT,
 REMARK TEXT);
 
 SCHOOL_DB_SQL;
-	
+//TODO : 数据库 添加 平均录取分 去年录取分数 过去五年录取分数 录取比例
+
 	public function __construct(){
 		
 		//初始化db
@@ -126,20 +131,22 @@ SCHOOL_DB_SQL;
 	}
 	public function init_db_table(){
 		//echo $this->db_name;
-		if(file_exists(dirname(__FILE__) . $this->db_name)){
-			return true;
-		}
+		//if(file_exists(dirname(__FILE__) . $this->db_name)){
+		//	//echo "";
+		//	return true;
+		//}
 		$sql = $this->tab_sql;
-		$ret = $this->db->exec($sql);
-		if(!$ret){			
-			echo $this->db->lastErrorMsg();
-		} 
+		//echo $sql;
+		@ $ret = $this->db->exec($sql);
+		//if(!$ret){			
+		//	echo $this->db->lastErrorMsg();
+		//} 
 		return $ret;		
 	}	
 	
 	// exec only once
 	public function init_db_data(){
-		$file_name = dirname(__FILE__) . "/../dat/school_info.list";
+		$file_name = dirname(__FILE__) . "/../dat/subject.test";
 		//echo "$file_name";
 		
 		if(!file_exists($file_name)){
@@ -152,22 +159,80 @@ SCHOOL_DB_SQL;
 		$fp = fopen($file_name, "r+");
 		
 		while(!feof($fp)){
-			$a_school = fgetcsv($fp, 999, "\t");
-			if(count($a_school)){
-				echo $a_school[1] . "\n";
-			}
-			//var_dump($a_school);
-			$school_name = $a_school[1];
-			$school_id = $a_school[1];
-			$school_arae = $a_school[4];
-			$school_arae_id = $a_school[5];
+			$a_research = fgetcsv($fp, 999, "\t");
+			if(count($a_research) > 10){
+				//echo $a_research[1] . "\n";
 			
+				$a_research['99'] = NULL;
+				$school_name                           = "$a_research[0]";
+				$school_id                             = "$a_research[1]";
+				$school_global_rank                    = "$a_research[99]";
+				$school_national_rank                  = "$a_research[99]";
+				$school_social_rank                    = "$a_research[99]";
+				$school_area                           = "$a_research[2]";
+				$school_area_id                        = "$a_research[3]";
+				$school_level                          = "$a_research[4]";
+				$school_dlyx                           = "$a_research[5]";
+				$school_zzhx                           = "$a_research[6]";
+				$school_bsd                            = "$a_research[7]";
+				$department_name                       = "$a_research[8]";
+				$department_id                         = "$a_research[9]";
+				$department_global_rank                = "$a_research[99]";
+				$department_national_rank              = "$a_research[99]";
+				$department_social_rank                = "$a_research[99]";
+				$department_number                     = "$a_research[10]";
+				$department_exemption_number           = "$a_research[11]";
+				$subject_name                          = "$a_research[12]";
+				$subject_id                            = "$a_research[13]";
+				$subject_global_rank                   = "$a_research[99]";
+				$subject_national_rank                 = "$a_research[99]";
+				$subject_department_rank               = "$a_research[99]";
+				$subject_social_rank                   = "$a_research[99]";
+				$subject_type                          = "$a_research[14]";
+				$subject_number                        = "$a_research[99]";
+				$subject_exemption_number              = "$a_research[99]";
+				$research_name                         = "$a_research[15]";
+				$research_id                           = "$a_research[16]";
+				$research_global_rank                  = "$a_research[99]";
+				$research_national_rank                = "$a_research[99]";
+				$research_subject_rank                 = "$a_research[99]";
+				$research_social_rank                  = "$a_research[99]";
+				$research_number                       = "$a_research[99]";
+				$research_exemption_number             = "$a_research[99]";
+				$research_emam_subjects                = "$a_research[17]";
+				$research_tearcher                     = "$a_research[99]";
+				$research_cross_subject                = "$a_research[99]";
+				$remark                                = "$a_research[99]";
+				
+			
+				$id = $school_id .  $department_id . $subject_id . $research_id;
+				$sql = "INSERT INTO school_info
+						(ID_INT,ID, SCHOOL_NAME, SCHOOL_ID, SCHOOL_GLOBAL_RANK ,SCHOOL_NATIONAL_RANK ,SCHOOL_SOCIAL_RANK ,SCHOOL_AREA ,SCHOOL_AREA_ID ,SCHOOL_LEVEL ,SCHOOL_DLYX ,SCHOOL_ZZHX ,SCHOOL_BSD ,DEPARTMENT_NAME ,DEPARTMENT_ID ,DEPARTMENT_GLOBAL_RANK ,DEPARTMENT_NATIONAL_RANK ,DEPARTMENT_SOCIAL_RANK ,DEPARTMENT_NUMBER ,DEPARTMENT_EXEMPTION_NUMBER ,SUBJECT_NAME ,SUBJECT_ID ,SUBJECT_GLOBAL_RANK ,SUBJECT_NATIONAL_RANK ,SUBJECT_DEPARTMENT_RANK ,SUBJECT_SOCIAL_RANK ,SUBJECT_TYPE ,SUBJECT_NUMBER ,SUBJECT_EXEMPTION_NUMBER ,RESEARCH_NAME ,RESEARCH_ID ,RESEARCH_GLOBAL_RANK ,RESEARCH_NATIONAL_RANK ,RESEARCH_SUBJECT_RANK ,RESEARCH_SOCIAL_RANK ,RESEARCH_NUMBER ,RESEARCH_EXEMPTION_NUMBER ,RESEARCH_EMAM_SUBJECTS ,RESEARCH_TEARCHER ,RESEARCH_CROSS_SUBJECT ,REMARK ) 
+						VALUES
+						(NULL , '$id', '$school_name','$school_id','$school_global_rank','$school_national_rank','$school_social_rank','$school_area','$school_area_id','$school_level','$school_dlyx','$school_zzhx','$school_bsd','$department_name','$department_id','$department_global_rank','$department_national_rank','$department_social_rank','$department_number','$department_exemption_number','$subject_name','$subject_id','$subject_global_rank','$subject_national_rank','$subject_department_rank','$subject_social_rank','$subject_type','$subject_number','$subject_exemption_number','$research_name','$research_id','$research_global_rank','$research_national_rank','$research_subject_rank','$research_social_rank','$research_number','$research_exemption_number','$research_emam_subjects','$research_tearcher','$research_cross_subject','$remark')";
+				
+				@ $flag = $this->db->exec($sql);
+				//var_dump($flag);
+			}
 		}
-		
-		var_dump($a_school);
-		
 		fclose($fp);
 		
+	}
+	
+	public function test_select(){
+		
+		$a_test = $this->db->query("SELECT * FROM school_info");
+		if(false === $a_test){
+			echo "NULL";
+			return false;
+		}
+		//var_dump($a_test);
+		$i = 1;
+		while($row = $a_test->fetchArray()){
+			//var_dump($row);
+			$i++;
+		}
+		var_dump($i);
 	}
 	
 }
@@ -177,4 +242,6 @@ SCHOOL_DB_SQL;
 $cl_school_info = new db_school_info();
 $cl_school_info->init_db_table();
 //var_dump($cl_school_info);
+
 $cl_school_info->init_db_data();
+$cl_school_info->test_select();
